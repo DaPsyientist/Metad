@@ -1089,14 +1089,9 @@ nR_S2_2<- cbind(nR_S2, Src_nR_S2)
 dim(nR_S1_1) #12 Columns
 dim(nR_S2_2) #12 Columns
 
-#Filter by usable participants
-nR_S1_1 <- nR_S1_1[inclusion_chk,]
-nR_S2_2 <- nR_S2_2[inclusion_chk,]
-
 #Export data matrices
-#library(R.matlab)
-#writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S1_40_Mem_1.mat", x=nR_S1_1) #Write Mat file for Stim 1
-#writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S2_40_Mem_2.mat", x=nR_S2_2) #Write Mat file for Stim 2
+#writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S1_40_SR_Mem_1.mat", x=nR_S1_1) #Write Mat file for Stim 1
+#writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S2_40_SR_Mem_2.mat", x=nR_S2_2) #Write Mat file for Stim 2
 
 
 #### H-Meta-d' Dependent Item DataPrep ####
@@ -1269,8 +1264,8 @@ dim(nR_S2_2) #12 Columns
 
 #Export data matrices
 #library(R.matlab)
-writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S1_40x2_1_Item.mat", x=nR_S1_1) #Write Mat file for Stim 1
-writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S2_40x2_2_Item.mat", x=nR_S2_2) #Write Mat file for Stim 2
+#writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S1_40_1_SR_Item.mat", x=nR_S1_1) #Write Mat file for Stim 1
+#writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S2_40_2_SR_Item.mat", x=nR_S2_2) #Write Mat file for Stim 2
 
 #### H-Meta-d' Dependent Source DataPrep ####
 #OLD STIM
@@ -1470,96 +1465,12 @@ dim(nR_S2_2_Src) #12 Columns
 
 #Export data matrices
 #library(R.matlab)
-writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S1_40_1_Src.mat", x=nR_S1_1_Src) #Write Mat file for Stim 1
-writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S2_40_2_Src.mat", x=nR_S2_2_Src) #Write Mat file for Stim 2
-
-#Combine for H-Meta-d' Valence x Memory
-nR_S1_Neg <- cbind(nR_S1_neg_Src, nR_S1_neg)
-nR_S2_Neg <- cbind(nR_S2_neg_Src, nR_S2_neg)
-
-nR_S1_Neut <- cbind(nR_S1_neut_Src , nR_S1_neut)
-nR_S2_Neut <- cbind(nR_S2_neut_Src, nR_S2_neut)[inclusion_chk,]
-
-#writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S1_66_1_NegMem.mat", x=nR_S1_Neg) #Write Mat file for Stim 1
-#writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S2_66_2_NegMem.mat", x=nR_S2_Neg) #Write Mat file for Stim 2
-#writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S1_66_1_NeutMem.mat", x=nR_S1_Neut) #Write Mat file for Stim 1
-#writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S2_66_2_NeutMem.mat", x=nR_S2_Neg) #Write Mat file for Stim 2
-
-#### Source MLE M-ratio ####
-# Sensitivity
-Source_d_60 <- c(0.74, 0.06, 0.81, 1.91, 0.56, 1.37, 1.6, 0.49, 1.23, -0.097, 0.85, 1.62, 0.085, -0.002,
-                 0.96, -0.021, 0.411, 0.84, 0.85, 0.27, 1.34, 0.68, 1.13, 0.87, 0.74, 0.13, 2.44, 1.44, 0.12, 0.57, 
-                 0.29, 1.54, 0.49, 0.69, 0.80, 1.27, 0.29, 2.92, 2.65, 2.32, 
-                 0.87, 3.27, 2.06, 0.62, 1.39, -0.57, 0.29, 1.22, 0.82, 0.43,
-                 0.22, 0.71, 0.82, 1.84, 0.5, 1.06, 0.72, 1.69, -0.47, -0.85)
-above_d <- Source_d > 0.5
-sum(above_d) #40 eligible participants
-Source_d_40 <- Source_d_60[above_d]
-
-mean(Source_d_60); sd(Source_d_60) # 0.898 (0.82)
-mean(Source_d_40); sd(Source_d_40) # 1.3 (0.68)
-
-# Response Bias
-Source_c_60  <- c(-0.93, -4.58, 0.2, -0.011, -0.25, 0.52, -0.27, 0.83, 0.055, -0.64, -0.03, 0.4, 6.2, 1.82, 
-                  0.011, 0.18, -3.28, -0.87, 0.19, -0.079, 0.035, -0.073, -0.41, 0.18, 0.44,  -8.38, -0.12,-0.08, 3.28, 2.2,  
-                  1.5, 0.33, -0.18, 0.80, -0.54, -0.23, 2.06, 0.023, 0.43, 0.99,
-                  -0.065, 0, 0.22, 0.075, -0.15, -0.22, -1.47, -0.14, -0.04, -0.25,
-                  -2.19, 0.22, -0.1, -0.095, 0.048, 0.18, 0.075, 0.38, 0.13, 0.21)
-Source_c_40 <- Source_c_60[above_d]
-
-mean(Source_c_60); sd(Source_c_60) # -0.024 (1.74)
-mean(Source_c_40); sd(Source_c_40) # 0.089 (0.50)
+#writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S1_40_SR_1_Src.mat", x=nR_S1_1_Src) #Write Mat file for Stim 1
+#writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S2_40_SR_2_Src.mat", x=nR_S2_2_Src) #Write Mat file for Stim 2
 
 
-# Metacognitive Accuracy (M-Ratio [H-Meta-d'/d'])
-Source_MRat_60 <- c(-2.96, -44.53, 0.34, -0.085, -1.03, 1.28, -0.83, 2.42, 0.64, -1.56, -0.79, 0.4, 11.6, 
-                    4.09, 0.058, 0.46, -5.7, -1.26, 0.68, -3.09, 0.57, -1.12, -1.54, 0.41, 1.2, -20.68, -0.34, 
-                    -1.01, 7.24, 2.87, 4.28, 0.4, -0.69, 1.62, -0.89, -0.53, 3.64, 0.057, 0.64, 0.21, 
-                    -0.23, -0.16, 0.42, 0.87, -0.69, -0.43, -5.64, -1.35, -0.21, -1.56, -3.88, 1.13, -0.73, -0.31,
-                    0.22, 0.65, 0.15, 1.2, 0.17, 2.04)
-Source_MRat_40 <- Source_MRat_60[above_d]
-
-mean(Source_MRat_60); sd(Source_MRat_60) # -0.87 (6.82)
-mean(Source_MRat_40); sd(Source_MRat_40) # -0.0068 (1.04)
-
-#Create data frame
-MLE_2SDT_Src_40 <- data.frame(unique(sort(Subj_40$ID)), Source_d_40, Source_c_40, Source_MRat_40)
-colnames(MLE_2SDT_Src_40) <- c("ID", "d_Src", "c_Src", "Src_MRat")
 
 
-#### Item MLE M-ratio ####
-# Sensitivity
-Item_d_60 <- c(1.05, 1.92, 2.32, 1.33, 2.13, 2.99, 2.12, 1.33, 2.82, 1.34,  
-               2.08, 2.17, 2.54, 2.99, 2.66, 2.73, 3.04, 2.54, 2.11, 2.02, 1.89,
-               2.67, 2.06, 3.2, 1.99, 1.99, 1.57, 2.07, 2.6, 2.53, 2.51, 2.16, 2.73,
-               2.26, 1.92, 2.04, 1.25, 1.5, 2.46, 1.84, 
-               2.7, 2.06, 1.74, 1.81, 2.62, 1.98, 2.23, 3.14, 2.55, 2.15,
-               2.64, 2.4, 2.57, 1.63, 1.85, 2.35, 2.51, 2.26, 2.83, 1.75)
-Item_d_40 <- Item_d_60[above_d]
-mean(Item_d_60); sd(Item_d_60) # 2.22 (0.49)
-mean(Item_d_40); sd(Item_d_40) # 2.22 (0.47)
-
-# Response Bias
-Item_c_60 <- c(-0.11, -0.3, -0.41, -0.29, -0.3, -0.41, -0.13, -0.29, -0.18, -0.029, 
-               -0.38, -0.45, -0.24, -0.36, -0.13, -0.4, -0.38, -0.35,-0.28, -0.41, -0.18, 
-               -0.35, -0.42, -0.14, -0.082, -0.069, -0.14, -0.48, -0.29, -0.16, -0.3, -0.4,
-               0.0076, -0.2608, -0.303, -0.2, -0.31, -0.06, -0.037, -0.086,
-               -0.19, -0.08, -0.19, -0.46, -0.05, -0.21, -0.13, -0.22, -0.074, -0.36,
-               -0.83, -0.22, -0.85, -0.085, 0.1, -0.7, -0.19, -0.33, -0.2, 0.39)
-Item_c_40 <- Item_c_60[above_d]
-mean(Item_c_60); sd(Item_c_60) # -0.25 (0.2)
-mean(Item_c_40); sd(Item_c_40) # -0.26 (0.18)
-sum(Item_c_60<0) #57/60 were liberal (95%)
-sum(Item_c_40<0) #40/40 were liberal (100%)
-# Metacognitive Accuracy (M-Ratio [H-Meta-d'/d'])
-Item_MRat_60 <- c(1.15, 0.56, 0.94, 0.78, 0.75, 0.58, 0.43, 1.23, 1.13, 0.29, 0.89, 0.88, 0.53,
-                  0.51, 0.43, 0.48, 0.56, 0.7, 1.27, 0.69, 0.28, 0.58, 0.57, 0.41, 0.86, 0.72,
-                  0.85, 0.85, 0.87, 0.43, 0.44, 1.13, 0.63, 0.76, 1.07, 0.84, 0.92, 0.25, 0.69, 0.45,
-                  0.48, 1.02, 0.48, 0.8, 0.12, 0.4, 0.38, 0.56, 0.89, 0.9, 0.89, 0.42, 0.45,
-                  0.98, 1.07, 0.88, 0.53, 0.4, 0.63, 0.62)
-Item_MRat_40 <- Item_MRat_60[above_d]
-mean(Item_MRat_60); sd(Item_MRat_60) # 0.688 (0.27)
-mean(Item_MRat_40); sd(Item_MRat_40) # 0.699 (0.28)
 
 
 # Create dataframe
@@ -1634,238 +1545,168 @@ SDT_Memory <- SDT_Item %>% full_join(SDT_Src)
 SDT_Memory %>% ggplot(aes(x=Memory, y=d, group=ID)) + ylab("d' score") +  xlab("Memory Type") + geom_point() + geom_line() + theme_classic() 
 SDT_Memory %>% ggplot(aes(x=Memory, y=c, group=ID)) + ylab("c score") +  xlab("Memory Type") + geom_point() + geom_line() + theme_classic() 
 
-#### Item MLE x Valence ####
-##  ---  Negative  ---  ##
-# Sensitivity
-Item_E_d_60 <- c(1.3508, 2.0585, 2.39, 1.26, 
-                 2.4889, 3.05, 2.18, 1.35, 3.63, 
-                 1.11, 2.29, 2.94, 3.17, 
-                 2.81, 2.89, 2.58, 2.94, 2.74, 
-                 2.18, 1.85, 1.96, 2.76, 2.01, 
-                 3.37, 2.57, 1.95, 1.87, 1.97,  
-                 2.85, 2.56, 2.28, 2.18, 2.94,
-                 2.48, 2.04, 2.08, 1.22, 1.38,
-                 2.53, 1.66, 2.89, 1.93, 1.7,
-                 1.71, 1.88, 2.29, 2.38,
-                 2.73, 2.84, 2.02, 2.5, 2.91,
-                 2.59, 2.16, 1.53, 2.48, 2.78,
-                 2.19, 3.62, 1.11)
-Item_E_d_40 <- Item_E_d_60[above_d]
 
-mean(Item_E_d_60); sd(Item_E_d_60) # 2.3 (0.6)
-mean(Item_E_d_40); sd(Item_E_d_40) # 2.34 (0.54)
+#### ITEM: SDT x Valence ####
+## d ##
+neg_d <- c(1.3230, 2.3886, 1.2245, 2.6656, 3.252, 2.1787, 3.9751, 2.2424, 3.1086, 2.9423, 2.7715, 
+           2.1287, 1.9252, 2.7715, 2.0014, 3.6423, 2.7592, 1.9183, 1.9252, 2.5115, 2.1787, 2.5115, 
+           2.0529, 2.0529, 1.3475, 2.4928, 1.6492, 2.9423, 1.8990, 1.6803, 1.7356, 2.9828, 2.7715, 
+           2.9018, 3.1086, 2.6281, 2.1682, 2.6656, 2.9018, 2.1851)
+mean(neg_d); sd(neg_d) #2.41 (0.62)
 
+neut_d <- c(0.7593, 2.1287, 1.4844, 1.8990, 2.6656, 2.0237, 2.1787, 1.8315, 1.4646, 2.2424, 2.1851, 2.0248, 1.7443, 2.5719, 
+            1.9140, 2.7715, 1.6420, 1.3108, 2.0914, 2.3886, 2.1851, 1.9252, 1.7356, 1.9391, 1.9140, 2.3220, 2.0237, 2.3886,
+            2.1682, 1.7414, 1.8286, 2.3682, 3.4228, 2.1787, 1.8315, 2.4928, 1.1308, 1.9140, 2.1851, 2.2249)
+mean(neut_d); sd(neut_d) #2.03 (0.46)
+neg_d <- data.frame(cbind(Src_40, neg_d))
+colnames(neg_d) <- c("ID", "Neg")
 
-# Response Bias
-Item_E_c_60 <- c(-0.0305, -0.1256, -0.46, -0.12,
-                 -0.1982, -0.35, -0.09, -0.087, -0.18,
-                 -0.018, -0.22, -0.39, -0.07, 
-                 -0.31, -0.1, -0.38, -0.21, -0.18, 
-                 -0.42, -0.35, -0.153, -0.19, -0.41, 
-                 -0.088, 0.45, -0.11, 0.18, -0.42, 
-                 -0.039, -0.11, -0.26, -0.15, -0.038,
-                 -0.084, -0.23, -0.17, -0.0041, 0.18,
-                 -0.015, -0.013, -0.096, -0.14, -0.12,
-                 -0.33, -0.089, -0.28, 0.1,
-                 -0.17, -0.022, -0.024, -0.69, -0.31,
-                 -0.11, -0.013, -0.074, -0.79, 0,
-                 -0.49, 0.0079, 0.67)
-Item_E_c_40 <- Item_E_c_60[above_d]
+neut_d <- data.frame(cbind(Src_40, neut_d))
+colnames(neut_d) <- c("ID", "Neut")
 
-mean(Item_E_c_60); sd(Item_E_c_60) # -0.15 (0.23)
-mean(Item_E_c_40); sd(Item_E_c_40) #  -0.17 (0.21)
-sum(Item_E_c_60<0) #53/60 were liberal (88.3%)
-sum(Item_E_c_40<0) #36/40 were liberal (90%)
+full_d <- neg_d %>% right_join(neut_d)
+full_d <- full_d %>% pivot_longer(c("Neg", "Neut"), names_to = "Valence", values_to = "d")
 
-##  ---  Neutral  ---  ##
-# Sensitivity
-Item_N_d_60 <- c(0.7484, 1.73, 2.17, 1.53,
-                 1.8789, 2.5, 2.05, 1.36, 2.15,
-                 1.54, 1.82, 1.48, 1.89, 
-                 2.7, 2.29, 2.4, 2.7, 2.17, 
-                 2.08, 2.21, 1.74, 2.4, 1.91, 
-                 2.74, 1.67, 2.025, 1.35, 2.09,
-                 2.28, 2.38, 2.18, 2.48, 2.47,
-                 1.97, 1.73, 1.93, 1.39, 1.92,
-                 2.25, 2.05, 2.38, 2.16, 1.73,
-                 1.82, 1.12, 1.61, 2.02,
-                 3.21, 2.18, 2.4, 2.22, 1.81,
-                 2.44, 1.14, 2.16, 1.91, 2.18,
-                 2.05, 2.26, 2.36)
-Item_N_d_40 <- Item_N_d_60[above_d]
+#Specify Prior
+d_prior <-
+  prior(normal(1.5, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "ValenceNeut")
 
-mean(Item_N_d_60); sd(Item_N_d_60) # 2.03 (0.43)
-mean(Item_N_d_40); sd(Item_N_d_40) #  1.99 (0.45)
-
-
-# Response Bias
-Item_N_c_60 <- c(-0.2680, -0.41, -0.34, -0.35, 
-                 -0.1986, -0.4, -0.12, -0.42, -0.16,
-                 -0.04, -0.58, -0.46, -0.22, 
-                 -0.38, -0.13, -0.32, -0.49, -0.32, 
-                 -0.01, -0.36, -0.21, -0.44, -0.42, 
-                 -0.21, -0.28, 0.085, -0.23, -0.51,
-                 -0.3, -0.14, -0.28, -0.61, 0.15,
-                 -0.53, -0.33, -0.20, -0.38, 0.15,
-                 -0.051, 0.05, -0.22, 0.003, -0.27,
-                 -0.61, 0.044, 0.049, -0.17,
-                 -0.19, -0.12, -0.51, -0.65, -0.17,
-                 -0.0049, -0.2, 0, -0.5, -0.38,
-                 -0.073, -0.22, 0.22)
-Item_N_c_40 <- Item_N_c_60[above_d]
-
-mean(Item_N_c_60); sd(Item_N_c_60) # -0.24 (0.21)
-mean(Item_N_c_40); sd(Item_N_c_40) #  -0.25 (0.19)
-sum(Item_N_c_60<0) #51/60 were liberal (85%)
-sum(Item_N_c_40<0) #36/40 were liberal (90%)
-
-#Valence differences for Item Memory
-## N = 60 ##
-#Create dataframe for comparisons 
-Neut_SDT_60 <- data.frame(cbind(Subj_60$ID, Item_N_d_60, Item_N_c_60)); colnames(Neut_SDT_60) <- c("ID", "d", "c")
-Neut_SDT_60 <- Neut_SDT_60 %>% mutate(Valence = "Neutral")
-Neg_SDT_60 <- data.frame(cbind(Subj_60$ID, Item_E_d_60, Item_E_c_60)); colnames(Neg_SDT_60) <- c("ID", "d", "c")
-Neg_SDT_60 <- Neg_SDT_60 %>% mutate(Valence = "Negative")
-Valenced_SDT_60 <- Neut_SDT_60 %>% full_join(Neg_SDT_60)
-
-## N = 40 ##
-#Create dataframe for comparisons 
-Neut_SDT_40 <- data.frame(cbind(Subj_40$ID, Item_N_d_40, Item_N_c_40)); colnames(Neut_SDT_40) <- c("ID", "d", "c")
-Neut_SDT_40 <- Neut_SDT_40 %>% mutate(Valence = "Neutral")
-Neg_SDT_40 <- data.frame(cbind(Subj_40$ID, Item_E_d_40, Item_E_c_40)); colnames(Neg_SDT_40) <- c("ID", "d", "c")
-Neg_SDT_40 <- Neg_SDT_40 %>% mutate(Valence = "Negative")
-Valenced_SDT_40 <- Neut_SDT_40 %>% full_join(Neg_SDT_40)
-
-## N = 60 ##
-## d (Sensitivity)
-if (!file.exists("Mem_diff_dVal_lm_60.rda")) {
-  Mem_diff_dVal_lm_60 <- brm(d ~ Valence + (1 | ID), data = Valenced_SDT_60, family = gaussian(), seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
-  save(Mem_diff_dVal_lm_60, file = "./Mem_diff_dVal_lm_60.rda") 
+#Analyze results
+if (!file.exists("SciRep40_item_val_d_lm.rda")) {
+  val_d_lm_40 <- brm(d ~  Valence + (1 | ID), data = full_d, family = gaussian(), prior = d_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(val_d_lm_40, file = "./SciRep40_item_val_d_lm.rda") 
 } else {
-  load("Mem_diff_dVal_lm_60.rda")  
+  load("SciRep40_item_val_d_lm.rda")  
 }
-pp_check(Mem_diff_dVal_lm_60, ndraws = 40) #Fantastic fit
-summary(Mem_diff_dVal_lm_60)
-ci(Mem_diff_dVal_lm_60, type="hdi", ci=0.89)
-pd(Mem_diff_dVal_lm_60)
-hdi(Mem_diff_dVal_lm_60,ci=0.89)
-# 0.28 [.17, .39]  more sensitive for negatively valenced images
-# 99.99% pd
+pp_check(val_d_lm_40, ndraws = 40) #Looks like a great fit
+summary(val_d_lm_40)
+hdi(val_d_lm_40, ci = 0.89)
+pd(val_d_lm_40)
+plot_model(val_d_lm_40, type="pred")
+(mean(neg_d$Neg)/mean(neut_d$Neut)) 
+#0.37 [0.23, 0.51]  more sensitive for neg valence; 1.19x more sensitive than neut memory
+# 100% pd
 
-## c (Response Bias)
-if (!file.exists("Mem_diff_cVal_lm_60.rda")) {
-  Mem_diff_cVal_lm_60 <- brm(c ~ Valence + (1 | ID), data = Valenced_SDT_60, family = gaussian(), seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
-  save(Mem_diff_cVal_lm_60, file = "./Mem_diff_cVal_lm_60.rda") 
+
+## c ##
+neg_c <- c(-0.0386, -0.4664, -0.0878, -0.8084, -0.5152, -0.1219, -0.1536, -0.2796, -0.5869, -0.1896, -0.2750, -0.3364,
+           -0.4382, -0.2750, -0.6600, -0.3201, 0.4543, 0.1516, -0.4382, -0.1450, -0.1219, -0.1450, -0.1848, -0.1848,
+           0.1678, 0.0352, 0.0170, -0.1896, -0.1079, -0.2172, -0.3434, -0.6498, -0.2750, 0.0502, -0.5869, -0.3466,
+           0.0267, -0.8084, 0.0502, -0.5681)
+mean(neg_c); sd(neg_c) #-0.25 (0.27)
+
+neut_c <- c(-0.1263, -0.3364, -0.6585, -0.1079, -0.8084, -0.3889, -0.1219, -0.4850, -0.4789, -0.2796, -0.5681, -0.0450,
+            -0.7885, -0.8552, -0.7037, -0.2750, -0.3903, -0.4020, -0.6150, -0.4664, -0.5681, -0.4382, -0.3434, -0.2417,
+            -0.7037, -0.0502, -0.3889, -0.4664, 0.0267, -0.5300,-0.7464, -0.2167, -0.4298, -0.1219, -0.4850, 0.0352,
+            -0.1347, -0.7037, -0.5681,-1.0288)
+mean(neut_c); sd(neut_c) #-0.43 (0.26)
+neg_c <- data.frame(cbind(Src_40, neg_c))
+colnames(neg_c) <- c("ID", "Neg")
+
+neut_c <- data.frame(cbind(Src_40, neut_c))
+colnames(neut_c) <- c("ID", "Neut")
+
+full_c <- neg_c %>% right_join(neut_c)
+full_c <- full_c %>% pivot_longer(c("Neg", "Neut"), names_to = "Valence", values_to = "c")
+
+#Specify Prior
+c_prior <-
+  prior(normal(0, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "ValenceNeut")
+
+#Analyze results
+if (!file.exists("SciRep40_item_val_c_lm.rda")) {
+  val_c_lm_40 <- brm(c ~  Valence + (1 | ID), data = full_c, family = gaussian(), prior = c_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(val_c_lm_40, file = "./SciRep40_item_val_c_lm.rda") 
 } else {
-  load("Mem_diff_cVal_lm_60.rda")  
+  load("SciRep40_item_val_c_lm.rda")  
 }
-pp_check(Mem_diff_cVal_lm_60, ndraws = 40) #Ok fit
-summary(Mem_diff_cVal_lm_60)
-ci(Mem_diff_cVal_lm_60, type="hdi", ci=0.89)
-pd(Mem_diff_cVal_lm_60)
-hdi(Mem_diff_cVal_lm_60,ci=0.89)
-# 0.10 [0.05, 0.14] more liberal for neutral 
-# 99.91% pd
+pp_check(val_c_lm_40, ndraws = 40) #Looks like a great fit
+summary(val_c_lm_40)
+hdi(val_c_lm_40, ci = 0.89)
+pd(val_c_lm_40)
+plot_model(val_c_lm_40, type="pred")
+# -0.18 [-0.26, -0.09]  more liberal for neutral judgments
+# 99.94% pd
 
-## N = 40 ##
-## d (Sensitivity)
-if (!file.exists("Mem_diff_dVal_lm_40.rda")) {
-  Mem_diff_dVal_lm_40 <- brm(d ~ Valence + (1 | ID), data = Valenced_SDT_40, family = gaussian(), seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
-  save(Mem_diff_dVal_lm_40, file = "./Mem_diff_dVal_lm_40.rda") 
+
+#### SOURCE: SDT x Valence ####
+## d ##
+Src_neg_d <- c(0.4637, 1.3465, 2.2211, 1.0421, 1.3490, 1.6643, 1.5344, 1.5547, 1.7293, 0.8660, 1.2393,
+               0.6290, 1.7655, 0.7732, 1.3267, 0.9117, 0.2981, 2.1797, 2.3468, 0.2057, 1.0461, 1.1580,
+               0.9998, 1.2040, 2.7511, 2.0574, 2.8353, 0.8651, 3.6678, 1.6773, 0.3765, 0.9578, 1.7793, 
+               0.6741, 0.8430, 0.9274, 1.9884, 0.8122, 0.8208, 1.1309)
+
+Src_neut_d <- c(0.9254, 0.2788, 1.3490, 0.1935, 1.5018, 1.4222, 0.8660, 0.2957, 1.3720, 1.0105, 0.1016,
+                0.9443, 0.8963, 0.3407, 0.8307, 0.6955, 1.3687, 2.5167, 1.0364, 0.9232, 2.1161, -0.0734,
+                0.4296, 1.1614, 2.7325, 3.1314, 1.5941, 0.8162, 2.6360, 2.2391, 0.8074, 1.6251, 0.9602,
+                0.9807, 0.4728, 0.6575, 1.5826, 1.1473, 0.4936, 2.2086)
+
+Src_neg_d <- data.frame(cbind(Src_40, Src_neg_d))
+colnames(Src_neg_d) <- c("ID", "Neg")
+
+Src_neut_d <- data.frame(cbind(Src_40, Src_neut_d))
+colnames(Src_neut_d) <- c("ID", "Neut")
+
+Src_full_d <- Src_neg_d %>% right_join(Src_neut_d)
+Src_full_d <- Src_full_d %>% pivot_longer(c("Neg", "Neut"), names_to = "Valence", values_to = "d")
+
+#Specify Prior
+Src_d_prior <-
+  prior(normal(1, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "ValenceNeut")
+
+#Analyze results
+if (!file.exists("SciRep40_src_val_d_lm.rda")) {
+  Src_val_d_lm_40 <- brm(d ~  Valence + (1 | ID), data = Src_full_d, family = gaussian(), prior = Src_d_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(Src_val_d_lm_40, file = "./SciRep40_src_val_d_lm.rda") 
 } else {
-  load("Mem_diff_dVal_lm_40.rda")  
+  load("SciRep40_src_val_d_lm.rda")  
 }
-pp_check(Mem_diff_dVal_lm_40, ndraws = 40) #Fantastic fit
-summary(Mem_diff_dVal_lm_40)
-ci(Mem_diff_dVal_lm_40, type="hdi", ci=0.89)
-pd(Mem_diff_dVal_lm_40)
-hdi(Mem_diff_dVal_lm_40,ci=0.89)
-# 0.34 [.21, .46]  more sensitive for negatively valenced images
-# 99.99% pd
+pp_check(Src_val_d_lm_40, ndraws = 40) #Looks like a great fit
+summary(Src_val_d_lm_40)
+hdi(Src_val_d_lm_40, 0.88)
+pd(Src_val_d_lm_40)
+plot_model(Src_val_d_lm_40, type="pred")
+# -0.18 [-0.36, -0.01] 1.16x more sensitive for negative judgments
+# 93.75% pd
 
-## c (Response Bias)
-if (!file.exists("Mem_diff_cVal_lm_40.rda")) {
-  Mem_diff_cVal_lm_40 <- brm(c ~ Valence + (1 | ID), data = Valenced_SDT_40, family = gaussian(), seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
-  save(Mem_diff_cVal_lm_40, file = "./Mem_diff_cVal_lm_40.rda") 
+## c ##
+Src_neg_c <- c(0.2319, 0.5686, 0.2411, 0.2912, 0, 0.2170, 0.2428, -0.3195, 0.9693, -0.0307, 0.3478,
+               0.2099, -0.2676, 0.1926, 0.4335, 0.2186, 0.3595, 0.2282, -0.5583, 0.7180, 0.7949, 0.3418, 
+               0.2280, 0.4080, 0.5139, 0.8608, 0.4968, 0.0919, 0, 0.4429, 0.0836, 0.2490, -0.2607, -0.1266,
+               0.1029, -0.0000, 0.1248, 0.4061, 0.4104, 0.2468)
+
+
+Src_neut_c <- c(0.3581, 0.5351, -0.0000, 0.1751, 0.9808, 0.4392, -0.0307, 0.2375, 1.0046, 0.4156, 1.1476, 0.3043,
+                0.3435, -0.1703, 0.1332, 0.6197, 0.4125, 0.5105, 0.5182, 0.7803, 0.7758, 0.7112, 1.0270, 0.3867,
+                0.1679, 0.3238, 0.4013, 0.5127, -0.0000, 0.5711, 0.0851, 0.1974, 0.3321, 0.5950, 0.2364, 0.2504,
+                0.4506, 0.1008, 0.5654, 0.4298)
+
+Src_neg_c <- data.frame(cbind(Src_40, Src_neg_c))
+colnames(Src_neg_c) <- c("ID", "Neg")
+
+Src_neut_c <- data.frame(cbind(Src_40, Src_neut_c))
+colnames(Src_neut_c) <- c("ID", "Neut")
+
+Src_full_c <- Src_neg_c %>% right_join(Src_neut_c)
+Src_full_c <- Src_full_c %>% pivot_longer(c("Neg", "Neut"), names_to = "Valence", values_to = "c")
+
+#Analyze results
+if (!file.exists("SciRep40_src_val_c_lm.rda")) {
+  Src_val_c_lm_40 <- brm(c ~  Valence + (1 | ID), data = Src_full_c, family = gaussian(), prior = c_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(Src_val_c_lm_40, file = "./SciRep40_src_val_c_lm.rda") 
 } else {
-  load("Mem_diff_cVal_lm_40.rda")  
+  load("SciRep40_src_val_c_lm.rda")  
 }
-pp_check(Mem_diff_cVal_lm_40, ndraws = 40) #Ok fit
-summary(Mem_diff_cVal_lm_40)
-ci(Mem_diff_cVal_lm_40, type="hdi", ci=0.89)
-pd(Mem_diff_cVal_lm_40)
-hdi(Mem_diff_cVal_lm_40,ci=0.89)
-# 0.09 [0.03, 0.14] more liberal for neutral 
-# 99.42% pd
-
-#### Source MLE x Valence ####
-##  ---  Negative  ---  ##
-# Sensitivity
-Item_E_d <- c(0.45, -0.29, 1.3, 2.18, 1.38, 0.68, 1.52, 0.032, -0.12, 1.53, 
-              -0.17, -0.4, -0.09, 0.093, 1.78, 0.74, 1.31, -0.48, 0.31, 0.25, 
-              1.03, 1.01, 0.24, 0.95, 1.87, 2.62, 1.03, 1.69, 0.42, 0.96, -0.65, 
-              0.21, 0.88, 0.55, 0.92, 0.95, 1.94, 0.84, 0.85, 1.21)
-mean(Item_E_d); sd(Item_E_d)#0.79 (077)
-# Response Bias
-Item_E_c <- c(-0.56, -0.2, -1.05, -0.067, 0, 0.32, 0.19, 5.8, -4.29, -1.38, 
-              1.57, -0.14, 2.45, -0.53, -0.063, -0.35, -0.12, 0.22, 1.38, -0.37,
-              1.89, -0.2, -0.51, 0.86, 0.71, -0.25, 0.12, -0.061, -0.0124, -0.01, 1.41, 
-              0.28, 0.085, -0.15, 0.2, 0.0089, 0.55, 0.08, -.35, 0.52)
-mean(Item_E_c); sd(Item_E_c) #0.2 (1.37)
-sum(Item_E_c<0) #20/35 were liberal (57.1%)
-
-##  ---  Neutral  ---  ##
-# Sensitivity
-Item_N_d <- c(0.99, 0.6, 0.22, 1.35, 1.25, 0.28, 0.9, -0.22, -0.055, 1.17, 
-              -1.61, 0.47, 0.098, 0.46, 0.9, 0.35, 0.81, 0.8, -0.07, 0.3,
-              1.91, 0.38, 0.25, 1.83, 2.94, 1.57, 1.32, 1.99, 0.82, 1.62, -0.4, 
-              -1.18, -0.18, 0.2, 0.48, 0.61, 1.6, 1.19, 0.54, 2.03)
-mean(Item_N_d);sd(Item_N_d) # 0.71 (0.88)
-# Response Bias
-Item_N_c <- c(-0.52, 0.26, 1.14, -0.028, 1.32, 0.36, 0.064, -1.19, -0.42, 0.64, 
-              0.087, -2.17, 2.93, -0.024, 0.054, -0.23, -0.19, 0.3, -7.95, 2.54, 
-              0.07, 0.27, 1.14, 0.24, 0.18, 0.063, -0.098, 0.56, 0.28, -0.096, -0.6,
-              0.016, -4.34, 1.49, 0.29, 0.89, 0.4, 0.1, 1.47, 0.33)
-mean(Item_N_c); sd(Item_N_c) #-0.0093 (1.72)
-sum(Item_N_c<0) #13/35 were liberal (32.5%)
-
-
-#Valence differences for Item Memory
-#Create dataframe for comparisons
-Neut_SDTSrc <- data.frame(cbind(Subj_40$ID, Item_N_d_40, Item_N_c_40)); colnames(Neut_SDTSrc) <- c("ID", "d", "c")
-Neut_SDTSrc <- Neut_SDTSrc %>% mutate(Valence = "Neutral")
-Neg_SDTSrc <- data.frame(cbind(Subj_40$ID, Item_E_d_40, Item_E_c_40)); colnames(Neg_SDTSrc) <- c("ID", "d", "c")
-Neg_SDTSrc <- Neg_SDTSrc %>% mutate(Valence = "Negative")
-Valenced_SDTSrc <- Neut_SDTSrc %>% full_join(Neg_SDTSrc)
-Valenced_SDTSrc$Valence <- as.factor(Valenced_SDTSrc$Valence)
-
-## d (Sensitivity)
-if (!file.exists("Mem_diff_dVal_lmSrc.rda")) {
-  Mem_diff_dVal_lmSrc <- brm(d ~ Valence + (1 | ID), data = Valenced_SDTSrc, family = gaussian(), seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
-  save(Mem_diff_dVal_lm, file = "./Mem_diff_dVal_lmSrc.rda") 
-} else {
-  load("Mem_diff_dVal_lmSrc.rda")  
-}
-pp_check(Mem_diff_dVal_lmSrc, ndraws = 40) #Fantastic fit
-summary(Mem_diff_dVal_lmSrc)
-ci(Mem_diff_dVal_lmSrc, type="hdi", ci=0.89)
-pd(Mem_diff_dVal_lmSrc)
-hdi(Mem_diff_dVal_lmSrc,ci=0.89)
-# 0.34 [0.21, 0.46]  more sensitive for negatively valenced images
-
-## c (Response Bias)
-if (!file.exists("Mem_diff_cVal_lm.rda")) {
-  Mem_diff_cVal_lmSrc <- brm(c ~ Valence + (1 | ID), data = Valenced_SDTSrc, family = gaussian(), seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
-  save(Mem_diff_cVal_lm, file = "./Mem_diff_cVal_lm.rda") 
-} else {
-  load("Mem_diff_cVal_lm.rda")  
-}
-pp_check(Mem_diff_cVal_lmSrc, ndraws = 40) #Ok fit
-summary(Mem_diff_cVal_lmSrc)
-ci(Mem_diff_cVal_lmSrc, type="hdi", ci=0.89)
-pd(Mem_diff_cVal_lmSrc)
-hdi(Mem_diff_cVal_lmSrc,ci=0.89)
-# 0.09 [0.03, 0.14] more liberal for neutral 
+pp_check(Src_val_c_lm_40, ndraws = 40) #Looks like a great fit
+summary(Src_val_c_lm_40)
+hdi(Src_val_c_lm_40, 0.89)
+pd(Src_val_c_lm_40)
+plot_model(Src_val_c_lm_40, type="pred")
+# -0.18 [-0.28, -0.08]  less conservative for negative judgments
+# 99.67% pd
 
 
 #### M-Ratio & Subjectives ####
@@ -2316,224 +2157,5 @@ cscore_SubD_Valint <- brm(c_scores ~ Valence*SubD_Scores, data = ValSDT_SubjAll,
 
 #The evidence does not support models which include subjective questionnaires beyond Valence
 #   (VVIQ, BPQ) for d', but there is moderate evidence for an effect of VVIQ in addition to Valence for c'
-
-
-####  Path Analysis  ####
-new_nR_S1 <-nR_S1[61:63,]
-new_nR_S2 <- nR_S2[61:63,]
-writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S1_3new_1_MLE.mat", x=new_nR_S1) #Write Mat file for Stim 1
-writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S2_3new_2_MLE.mat", x=new_nR_S2) #Write Mat file for Stim 2
-
-newSrc_nR_S1 <- Src_nR_S1[61:63,]
-newSrc_nR_S2 <- Src_nR_S2[61:63,] 
-writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nRSrc_S1_3new2_SrcMLE.mat", x=newSrc_nR_S1) #Write Mat file for Stim 1
-writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nRSrc_S2_3new2_SrcMLE.mat", x=newSrc_nR_S2) #Write Mat file for Stim 2
-
-
-#115,  119,  120, 124,  126,  129,  130,  131, 132, 133, 134, 138, 139, 140, 141, 142, 143, 147, 149, 152, 157, 
-#162, 165, 167, 172, 182, 184, 186, 188, 192, 193, 195, 197, 203, 204, 209, 215, 218, 219, 220, 221, 223, 224, 
-#226, 227, 228, 231, 232, 233, 237, 238, 241, 243, 244, 249, 250, 252, 253, 255, 258, 259, 260, 261, 262, 263, 
-#264
-
-> cor(OverallSDT_Subj_35$d, OverallSDT_Subj_35$Item_MRat)
-[1] -0.257466
-> plot(OverallSDT_Subj_35$d, OverallSDT_Subj_35$Item_MRat)
-lm_d_Mrat<- brm(Item_MRat ~ d, data = OverallSDT_Subj_35, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE))
-pp_check(lm_d_Mrat, ndraws = 40) #Great fit
-summary(lm_d_Mrat)
-ci(lm_d_Mrat, method = "HDI", ci = 0.83)[2,3];ci(lm_d_Mrat, method = "HDI", ci = 0.83)[2,4] #Also significant with 85% confidence
-plot_model(lm_d_Mrat, type="pred")
-
-
-#Mratio for 40 x Valence
-E_Mrat <- c(0.84, 1.45, 1.7, 0.92, 1.23, 2.23, 1.2, 1.63, 1.25, 1.85, 5.16, 1.55, 1.24, 1.72, 0.27, 1.26, 1.04,
-            0.53, 1.47, 1.37, 1.02, 1.62, 1.57, -0.96, 1.26, 0.99, -0.21, 0.47, 0.71, 0.58, 6.96, 0.57,
-            0.02, 1.22, 0.9, 0.31, 0.41, 1.08, -0.19, 0.87)
-N_Mrat <- c(2, 0.52, 0.94, 0.51, 0.55, 0.97, 1.19, 0.84, 0.29, 0.91, 0.57, 0.61, 0.41, 0.42, 0.26, 0.57, 0.6,
-            0.87, 0.58, 0.45, 0.99, 0.97, 0.53, -0.28, 0.66, -0.12, -0.88, 0.52, 0.82, 0.32, 0.08, 1.03,
-            0.88, 0.66, 0.36, 0.26, 1.41, 0.72, 0.67, 0.07)
-
-#path mode
-Path_mat <- rbind(cbind(OverallSDT_Subj_40$ID, OverallSDT_Subj_40$VVIQ_Scores, N_Mrat, Item_N_d, rep("N")),
-                  cbind(OverallSDT_Subj_40$ID, OverallSDT_Subj_40$VVIQ_Scores, E_Mrat, Item_E_d, rep("E")))
-
-#Create df
-Path_df <- data.frame(Path_mat); colnames(Path_df) <- c("ID", "VVIQ", "Item_MRat", "d_score", "Valence")
-Path_df$Valence <- factor(Path_df$Valence, levels = c("N", "E"))
-Path_df$Item_MRat <- as.numeric(Path_df$Item_MRat)
-Path_df$d_score <- as.numeric(Path_df$d_score)
-Path_df$VVIQ <- as.numeric(Path_df$VVIQ)
-write.csv(Path_df, file = "Pathdf.csv", row.names = FALSE)
-
-#Standardize variables for path analysis
-StandPath_df<- Path_df %>% mutate(across(where(is.numeric), scale))
-
-# Answer Key
-Path_metaimagery <- '
-   Item_MRat ~  a*d_score + b*Valence + c*VVIQ 
-   d_score ~ d*Valence
-   VVIQ_ind := c*a
-   Val_ind := d*a
-   tot := VVIQ_ind+Val_ind+c+b
-   VVIQprop := VVIQ_ind/tot
-   Valprop := Val_ind/tot
-'
-Lavaan_finalmodel <- lavaan::sem(Path_metaimagery, data = StandPath_df)  ## standardizing variables
-
-## parameter names
-semPaths(Lavaan_finalmodel, what = "path", edge.label.cex = 2, layout = "tree2", residuals = FALSE, edge.color = 1, 
-         esize = 1, rotation = 2, sizeMan = 8, asize = 2.5, fade = FALSE, exoCov = FALSE, nDigits = 3, intercepts = FALSE)
-## unstandardized parameters
-semPaths(Lavaan_finalmodel, what = "est", edge.label.cex = 2, layout = "tree2", residuals = TRUE, edge.color = 1, 
-         esize = 1, rotation = 2, sizeMan = 8, asize = 2.5, fade = FALSE, exoCov = FALSE, nDigits = 3, intercepts = FALSE)
-summary(Lavaan_finalmodel, standardized = TRUE) ## we add the standardized parameters right away 
-
-Lavaan_finalmodel_summary <- summary(Lavaan_finalmodel, standardized = TRUE)$pe  ## we're saving the parameter estimate table from the summary to use later
-
-customLayout <- matrix(c(2, 0,  # MRATIO at the top
-                         -2, 0,  # d_score on the left
-                         0, -2,   # Valence on the right
-                         0, 2), # VVIQ at the bottom
-                       ncol = 2, byrow = TRUE)
-path_pvalues <- c(0.66, 0.002, 0.81, 0.011, 0.005) # Replace with your actual p-values
-path_colors <- ifelse(path_pvalues < 0.05, "forestgreen", "grey")
-
-# Create custom labels with both estimates and p-values
-# The format is "estimate (p-value)"
-custom_labels <- paste(round(Lavaan_finalmodel_summary$est, 3), " (p=", round(Lavaan_finalmodel_summary$pvalue, 3), ")", sep="")
-custom_labels <- c("-0.053\n (p=0.66)",  "0.73\n (p=0.002)", "0.028\n (p=0.81)", "0.226\n (p=0.041)", "0.613\n (p=0.005)")
-
-semPaths(Lavaan_finalmodel, what = "est", edge.label.cex = 1.5, layout = customLayout,
-         residuals = FALSE, edge.color = path_colors, esize = 6, rotation = 1,
-         sizeMan = 13, asize = 5, fade = FALSE, exoCov = TRUE, nDigits = 3,
-         intercepts = FALSE, ,nodeLabels = c("Item\n M-ratio", "d' score", "Negative\n Valence", "VVIQ\n score"), edgeLabels = custom_labels)
-
-
-
-
-
-
-
-
-
-
-
-
-#Mratio for 35 x Valence
-E_Mrat <- c(0.84, 1.45, 1.7, 0.92, 1.23, 2.23, 1.2, 1.63, 1.25, 1.85, 5.16, 1.55, 1.24, 1.72, 0.27, 1.26, 1.04,
-            0.53, 1.47, 1.37, 1.02, 1.62, 1.57, -0.96, 1.26, 0.99, -0.21, 0.47, 0.71, 0.58, 6.96, 0.57,
-            0.02, 1.22, 0.9, 0.31, 0.41, 1.08, -0.19, 0.87)
-N_Mrat <- c(2, 0.52, 0.94, 0.51, 0.55, 0.97, 1.19, 0.84, 0.29, 0.91, 0.57, 0.61, 0.41, 0.42, 0.26, 0.57, 0.6,
-            0.87, 0.58, 0.45, 0.99, 0.97, 0.53, -0.28, 0.66, -0.12, -0.88, 0.52, 0.82, 0.32, 0.08, 1.03,
-            0.88, 0.66, 0.36, 0.26, 1.41, 0.72, 0.67, 0.07)
-sum(E_Mrat>N_Mrat)/40
-
-#path mode
-Path_mat <- rbind(cbind(OverallSDT_Subj_40$ID, OverallSDT_Subj_40$VVIQ_Scores, N_Mrat, Item_N_d[above_d], Item_N_c[above_d], rep("N")),
-                  cbind(OverallSDT_Subj_40$ID, OverallSDT_Subj_40$VVIQ_Scores, E_Mrat, Item_E_d[above_d], Item_E_c[above_d], rep("E")))
-
-#Create df
-Path_df <- data.frame(Path_mat); colnames(Path_df) <- c("ID", "VVIQ", "Item_MRat", "d_score", "c_score", "Valence")
-Path_df$Valence <- factor(Path_df$Valence, levels = c("N", "E"))
-Path_df$Item_MRat <- as.numeric(Path_df$Item_MRat)
-Path_df$d_score <- as.numeric(Path_df$d_score)
-Path_df$VVIQ <- as.numeric(Path_df$VVIQ)
-Path_df$c_score <- as.numeric(Path_df$c_score)
-
-#Standardize variables for path analysis
-StandPath_df<- Path_df %>% mutate(across(where(is.numeric), scale))
-
-# Answer Key
-Path_metaimagery <- '
-   Item_MRat ~  a*d_score + b*Valence + c*VVIQ + h*c_score
-   d_score ~ e*Valence 
-   c_score ~ f*VVIQ + g*Valence
-   VVIQ_ind := h*f
-   Val_ind := a*e
-   Val_ind2 := h*g
-   tot := VVIQ_ind+Val_ind+Val_ind2+c+b+a
-   VVIQprop := (VVIQ_ind)/tot
-   Valprop := (Val_ind+Val_ind2)/tot
-'
-
-
-
-
-
-Path_metaimagery <- '
-   Item_MRat ~ a*Valence + b*VVIQ + c*c_score
-   d_score ~ d*Valence 
-   c_score ~ e*VVIQ + f*Valence
-   VVIQ_ind := b*e
-   Val_ind := a*f
-   tot := VVIQ_ind+Val_ind+c+a+b
-   VVIQprop := VVIQ_ind+b/tot
-   Valprop := Val_ind+a/tot
-'
-Path_metaimagery <- '
-   Item_MRat ~  a*d_score + b*Valence + c*VVIQ + h*c_score
-   d_score ~ e*Valence + d*VVIQ
-   c_score ~ f*VVIQ + g*Valence
-   VVIQ_ind := c*f
-   VVIQ_ind2 := c*
-   Val_ind := e*a
-   Val_ind2 := c*g
-   tot := VVIQ_ind+Val_ind+Val_ind2+c+b
-   VVIQprop := VVIQ_ind/tot
-   Valprop := Val_ind+Val_ind2/tot
-'
-
-Lavaan_finalmodel <- lavaan::sem(Path_metaimagery, data = StandPath_df)  ## standardizing variables
-
-## parameter names
-semPaths(Lavaan_finalmodel, what = "path", edge.label.cex = 2, layout = "tree2", residuals = FALSE, edge.color = 1, 
-         esize = 1, rotation = 2, sizeMan = 8, asize = 2.5, fade = FALSE, exoCov = FALSE, nDigits = 3, intercepts = FALSE)
-## unstandardized parameters
-semPaths(Lavaan_finalmodel, what = "est", edge.label.cex = 2, layout = "tree2", residuals = TRUE, edge.color = 1, 
-         esize = 1, rotation = 2, sizeMan = 8, asize = 2.5, fade = FALSE, exoCov = FALSE, nDigits = 3, intercepts = FALSE)
-summary(Lavaan_finalmodel, standardized = TRUE) ## we add the standardized parameters right away 
-
-Lavaan_finalmodel_summary <- summary(Lavaan_finalmodel, standardized = TRUE)$pe  ## we're saving the parameter estimate table from the summary to use later
-
-customLayout <- matrix(c(2, 0,  # MRATIO at the top
-                         -2, 0,  # d_score on the left
-                         0, -2,   # Valence on the right
-                         0, 2, # VVIQ at the bottom
-                         -6, 0),
-                       ncol = 2, byrow = TRUE)
-
-
-customLayout <- matrix(c(2, 0,  # MRATIO to the right
-                         0, 0,  # d_score on the left
-                         0, -2,   # cScore on the bottom
-                         0, 2, # VVIQ at the top
-                         -6, 0), #Negative valence left(est)
-                       ncol = 2, byrow = TRUE)
-
-customLayout <- matrix(c(0, 0,  # MRATIO to the right
-                         16, 0,  # d_score on the left
-                         -16, 0,   # cScore on the bottom
-                         0, 4, # VVIQ at the top
-                         0, -4), #Negative valence left(est)
-                       ncol = 2, byrow = TRUE)
-
-#path_pvalues <- c(0.442, 0.000, 0.369, 0.111, 0.000, 0.007, 0.000,  0.012) # Replace with your actual p-values
-path_pvalues <- c(0.300, 0.001, 0.480, 0.118, 0.001, 0.001, 0.044) # Replace with your actual p-values
-
-path_colors <- ifelse(path_pvalues < 0.05, "forestgreen", "grey")
-
-# Create custom labels with both estimates and p-values
-# The format is "estimate (p-value)"
-custom_labels <- paste(round(Lavaan_finalmodel_summary$est, 3), " (p=", round(Lavaan_finalmodel_summary$pvalue, 3), ")", sep="")
-custom_labels <- c("-0.115\n (p=0.3)",  "0.77\n (p=0.001)", "0.079\n (p=0.48)", "-0.18\n (p=0.12)",  "0.67\n (p=0.001)", "0.34\n (p=0.001)",  "0.41\n (p=0.044)")
-
-semPaths(Lavaan_finalmodel, what = "est", edge.label.cex = 1.5, layout = customLayout,
-         residuals = FALSE, edge.color = path_colors, esize = 6, rotation = 1,
-         sizeMan = 10, asize = 5, fade = FALSE, exoCov = FALSE, nDigits = 3,
-         intercepts = FALSE, ,nodeLabels = c("Item\n M-ratio", "d' score", "c score", "Negative\n Valence", "VVIQ\n score"), edgeLabels = custom_labels)
-
-
-#c("Item\n M-ratio", "d' score", "Negative\n Valence", "c score\n score", "VVIQ")
-#c("Item\n M-ratio", "d' score", "VVIQ\n score", "Negative\n Valence",  "c score"), edgeLabels = custom_labels)
 
 
