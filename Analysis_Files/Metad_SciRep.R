@@ -1476,7 +1476,7 @@ dim(nR_S2_2_Src) #12 Columns
 # Create dataframe
 #Get participants in analysis
 MLE_2SDT_60 <- data.frame(unique(sort(Subj_60$ID)), Item_d_60, Item_c_60)
-MLE_2SDT_40 <- data.frame(unique(sort(Subj_40$ID)), Item_d_40, Item_c_40)
+MLE_2SDT_40 <- data.frame(unique(sort(Subj_40$ID)), item_d, item_c)
 
 colnames(MLE_2SDT_60) <- c("ID", "d", "c")
 colnames(MLE_2SDT_40) <- c("ID", "d", "c")
@@ -1544,6 +1544,85 @@ SDT_Memory <- SDT_Item %>% full_join(SDT_Src)
 #Create Plots
 SDT_Memory %>% ggplot(aes(x=Memory, y=d, group=ID)) + ylab("d' score") +  xlab("Memory Type") + geom_point() + geom_line() + theme_classic() 
 SDT_Memory %>% ggplot(aes(x=Memory, y=c, group=ID)) + ylab("c score") +  xlab("Memory Type") + geom_point() + geom_line() + theme_classic() 
+
+
+#### MEMORY ####
+## d ##
+item_d <- c(1.4291, 2.3790, 1.5387, 2.2067, 2.6203, 2.1617, 2.7638, 2.2080, 2.2372, 
+            2.4630, 2.4500, 2.2123, 1.8736, 2.4740, 2.0284, 2.8290, 2.1278, 1.8139, 
+            2.1543, 2.3816, 2.3121, 2.2963, 2.1032, 2.1798, 1.5844, 2.3528, 1.9566, 
+            2.5263, 2.0593, 1.8780, 1.9693, 2.4210, 2.7835, 2.5019, 2.2951, 2.4773, 
+            1.8636, 2.2581, 2.4160, 2.0814)
+mean(item_d); sd(item_d) #2.22 (0.32)
+src_d <- c(0.8344, 0.9785, 1.7691, 0.7975, 1.4538, 1.5081, 1.3068, 0.9630, 1.3396, 
+           1.0724, 0.9804, 1.0094, 1.4139, 0.9181, 1.1633, 1.0063, 0.9469, 2.0676, 
+           1.4199, 0.9463, 1.4339, 0.9205, 0.9352, 1.2629, 2.3408, 2.1523, 1.9807, 
+           1.0311, 2.5633, 1.7913, 0.8821, 1.3464, 1.2674, 0.9555, 0.9424, 0.9680, 
+           1.6949, 1.2057, 0.9008, 1.6366)
+mean(src_d); sd(src_d) #1.3 (0.45)
+item_d <- data.frame(cbind(Src_40, item_d))
+colnames(item_d) <- c("ID", "Item")
+src_d <- data.frame(cbind(Src_40, src_d))
+colnames(src_d) <- c("ID", "Src")
+
+full_d <- item_d %>% right_join(src_d)
+full_d <- full_d %>% pivot_longer(c("Item", "Src"), names_to = "Memory", values_to = "d")
+
+#Analyze results
+Src_d_prior <-
+  prior(normal(1, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "MemorySrc")
+if (!file.exists("SciRep40_Mem_d_lm.rda")) {
+  Mem_d_lm_40 <- brm(d ~  Memory + (1 | ID), data = full_d, family = gaussian(), prior = Src_d_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(Mem_d_lm_40, file = "./SciRep40_Mem_d_lm.rda") 
+} else {
+  load("SciRep40_Mem_d_lm.rda")  
+}
+pp_check(Mem_d_lm_40, ndraws = 40) #Looks like a great fit
+summary(Mem_d_lm_40)
+hdi(Mem_d_lm_40, ci = 0.89) # -1.03, -0.75
+pd(Mem_d_lm_40)
+plot_model(Mem_d_lm_40, type="pred")
+# -0.89 [-1.03, -0.75]  more sensitive for neg valence; 1.x more sensitive for ___ than ___ memory
+# 100% pd
+(mean(item_d$Item)/mean(src_d$Src)) #Difference: 1.7x
+
+## c ##
+item_c <- c(0.2032, -0.4282, -0.3910, -0.3907, -0.5103, -0.3142, -0.2842, -0.4035, 
+            -0.4522, -0.3202, -0.4187, -0.3192, -0.5146, -0.4803, -0.5689, -0.3452, 
+            -0.2040, -0.2602, -0.4936, -0.3522, -0.4018, -0.3509, -0.3559, -0.3023, 
+            -0.2832, -0.2012, -0.2541, -0.3566, -0.2283, -0.3973, -0.4944, -0.3681, 
+            -0.3498, -0.2334, -0.4422, -0.2787, -0.2017, -0.6048, -0.3533, -0.6148)
+mean(item_c); sd(item_c) # -0.36 (0.14)
+src_c <- c(0.3497, 0.4248, 0.3120, 0.3338, 0.3789, 0.3521, 0.2601, 0.2575, 0.5139, 0.3043, 0.4639, 
+           0.3246, 0.2747, 0.2798, 0.3339, 0.3838, 0.3613, 0.3375, 0.2922, 0.4660, 0.4652, 0.4034, 
+           0.4344, 0.3750, 0.3462, 0.4143, 0.3754, 0.3438, 0.2632, 0.3942, 0.2653, 0.3188, 0.2868, 
+           0.3060, 0.3045, 0.2931, 0.3442, 0.3404, 0.4075, 0.3381)
+mean(src_c); sd(src_c) # 0.35 (0.064)
+item_c <- data.frame(cbind(Src_40, item_c))
+colnames(item_c) <- c("ID", "Item")
+src_c <- data.frame(cbind(Src_40, src_c))
+colnames(src_c) <- c("ID", "Src")
+full_c <- item_c %>% right_join(src_c)
+full_c <- full_c %>% pivot_longer(c("Item", "Src"), names_to = "Memory", values_to = "c")
+
+#Analyze results
+Src_c_prior <-
+  prior(normal(0, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "MemorySrc")
+if (!file.exists("SciRep40_Mem_c_lm.rda")) {
+  Mem_c_lm_40 <- brm(c ~  Memory + (1 | ID), data = full_c, family = gaussian(), prior = Src_c_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(Mem_c_lm_40, file = "./SciRep40_Mem_c_lm.rda") 
+} else {
+  load("SciRep40_Mem_c_lm.rda")  
+}
+pp_check(Mem_c_lm_40, ndraws = 40) #Looks like a great fit
+summary(Mem_c_lm_40)
+hdi(Mem_c_lm_40, ci = 0.89) # 0.67, 0.74
+pd(Mem_c_lm_40)
+plot_model(Mem_c_lm_40, type="pred")
+# 0.71 [.67, .74]  more conservative for source memory
+# 100% pd
 
 
 #### ITEM: SDT x Valence ####
@@ -1637,11 +1716,13 @@ Src_neg_d <- c(0.4637, 1.3465, 2.2211, 1.0421, 1.3490, 1.6643, 1.5344, 1.5547, 1
                0.6290, 1.7655, 0.7732, 1.3267, 0.9117, 0.2981, 2.1797, 2.3468, 0.2057, 1.0461, 1.1580,
                0.9998, 1.2040, 2.7511, 2.0574, 2.8353, 0.8651, 3.6678, 1.6773, 0.3765, 0.9578, 1.7793, 
                0.6741, 0.8430, 0.9274, 1.9884, 0.8122, 0.8208, 1.1309)
+mean(Src_neg_d); sd(Src_neg_d) #1.35 (0.74)
 
 Src_neut_d <- c(0.9254, 0.2788, 1.3490, 0.1935, 1.5018, 1.4222, 0.8660, 0.2957, 1.3720, 1.0105, 0.1016,
                 0.9443, 0.8963, 0.3407, 0.8307, 0.6955, 1.3687, 2.5167, 1.0364, 0.9232, 2.1161, -0.0734,
                 0.4296, 1.1614, 2.7325, 3.1314, 1.5941, 0.8162, 2.6360, 2.2391, 0.8074, 1.6251, 0.9602,
                 0.9807, 0.4728, 0.6575, 1.5826, 1.1473, 0.4936, 2.2086)
+mean(Src_neut_d); sd(Src_neut_d) #1.17 (0.77)
 
 Src_neg_d <- data.frame(cbind(Src_40, Src_neg_d))
 colnames(Src_neg_d) <- c("ID", "Neg")
@@ -1677,12 +1758,13 @@ Src_neg_c <- c(0.2319, 0.5686, 0.2411, 0.2912, 0, 0.2170, 0.2428, -0.3195, 0.969
                0.2099, -0.2676, 0.1926, 0.4335, 0.2186, 0.3595, 0.2282, -0.5583, 0.7180, 0.7949, 0.3418, 
                0.2280, 0.4080, 0.5139, 0.8608, 0.4968, 0.0919, 0, 0.4429, 0.0836, 0.2490, -0.2607, -0.1266,
                0.1029, -0.0000, 0.1248, 0.4061, 0.4104, 0.2468)
-
+mean(Src_neg_c); sd(Src_neg_c) #0.24 (0.31)
 
 Src_neut_c <- c(0.3581, 0.5351, -0.0000, 0.1751, 0.9808, 0.4392, -0.0307, 0.2375, 1.0046, 0.4156, 1.1476, 0.3043,
                 0.3435, -0.1703, 0.1332, 0.6197, 0.4125, 0.5105, 0.5182, 0.7803, 0.7758, 0.7112, 1.0270, 0.3867,
                 0.1679, 0.3238, 0.4013, 0.5127, -0.0000, 0.5711, 0.0851, 0.1974, 0.3321, 0.5950, 0.2364, 0.2504,
                 0.4506, 0.1008, 0.5654, 0.4298)
+mean(Src_neut_c); sd(Src_neut_c) #0.42 (0.3)
 
 Src_neg_c <- data.frame(cbind(Src_40, Src_neg_c))
 colnames(Src_neg_c) <- c("ID", "Neg")
@@ -1711,15 +1793,13 @@ plot_model(Src_val_c_lm_40, type="pred")
 
 #### M-Ratio & Subjectives ####
 #Joining the SDT data with the Subjective Data
+#Create data frame
+MLE_2SDT_Src_40 <- data.frame(unique(sort(Subj_40$ID)), src_d, src_c)
+colnames(MLE_2SDT_Src_40) <- c("ID", "d_Src", "c_Src")
+
 #Subjective and Overall SDT
 Subj_40$ID <- as.factor(Subj_40$ID)
 OverallSDT_Subj <- Subj_40 %>% full_join(MLE_2SDT_40, by = "ID") %>% full_join(MLE_2SDT_Src_40, by = "ID")
-#Add M-Ratio to dataframe
-MLE_2SDT_MRat <- data.frame(unique(sort(Subj_40$ID)), Item_MRat[above_d])
-colnames(MLE_2SDT_MRat) <- c("ID", "Item_MRat")
-OverallSDT_Subj <- OverallSDT_Subj %>% full_join(MLE_2SDT_MRat, by="ID")
-##Subsetting for usable Source memory participants
-OverallSDT_Subj_40 <- OverallSDT_Subj %>% filter(ID %in% OverallSDT_Subj$ID) 
 
 ##### Item #####
 #Vividness of Visual Imagery Questionnaire (VVIQ)
