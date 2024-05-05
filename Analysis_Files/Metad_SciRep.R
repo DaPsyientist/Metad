@@ -848,7 +848,28 @@ sum(Mem_Confidence_Ppt$Item_Conf > Mem_Confidence_Ppt$Source_Conf)
 hist(Mem_Confidence_Ppt$Item_Conf - Mem_Confidence_Ppt$Source_Conf, breaks= 12)
 #39/40 (97.5%) have higher confidence in Item than Source
 
-#Combine item and source data frames
+#Convert data frame for analysis
+Mem_Confidence <- Mem_Confidence_Ppt %>% pivot_longer(c("Source_Conf", "Item_Conf"), names_to = "Memory", values_to = "Conf")
+#Specify Prior
+memconfidence_prior <-
+  prior(normal(3, 1), class = "b", coef = "") +
+  prior(normal(0, 1), class = "b", coef = "MemorySource_Conf") 
+#Analyze data
+if (!file.exists("SciRep40_Mem_conf_lm.rda")) {
+  Mem_conf_diff_lm <- brm(Conf ~ Memory + (1 | participant), data = Mem_Confidence, family = gaussian(), prior = memconfidence_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(Mem_conf_diff_lm, file = "./SciRep40_Mem_conf_lm.rda") 
+} else {
+  load("SciRep40_Mem_conf_lm.rda")  
+}
+pp_check(Mem_conf_diff_lm, ndraws = 40) #Looks like a great fit
+summary(Mem_conf_diff_lm)
+hdi(Mem_conf_diff_lm, ci = 0.89)
+pd(Mem_conf_diff_lm)
+plot_model(Mem_conf_diff_lm, type="pred")
+# Participants were 0.54(0.06) [0.45, 0.63] less confident for source confidence judgments.
+# 100% pd
+
+#Combine valenced item and source data frames
 Item_Conf_Emo$participant <- factor(Item_Conf_Emo$participant)
 colnames(Item_Conf_Emo) <- c("participant", "Valence", "avg_conf")
 colnames(Src_Conf_Emo) <- c("participant", "Valence", "avg_conf")
@@ -1468,85 +1489,7 @@ dim(nR_S2_2_Src) #12 Columns
 #writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S1_40_SR_1_Src.mat", x=nR_S1_1_Src) #Write Mat file for Stim 1
 #writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/nR_S2_40_SR_2_Src.mat", x=nR_S2_2_Src) #Write Mat file for Stim 2
 
-
-
-
-
-
-# Create dataframe
-#Get participants in analysis
-MLE_2SDT_60 <- data.frame(unique(sort(Subj_60$ID)), Item_d_60, Item_c_60)
-MLE_2SDT_40 <- data.frame(unique(sort(Subj_40$ID)), item_d, item_c)
-
-colnames(MLE_2SDT_60) <- c("ID", "d", "c")
-colnames(MLE_2SDT_40) <- c("ID", "d", "c")
-
-#Combine with Subjective data
-Subjective_Quest <- Subj_40 %>% select(ID, Dem_Sex, BA_scores, SupraD_Scores, VVIQ_Scores)
-Subjective_Quest$ID <- as.factor(Subjective_Quest$ID)
-SDTnSubj <- Subjective_Quest %>% right_join(MLE_2SDT)
-SDTnSubj$Dem_Sex <- as.factor(SDTnSubj$Dem_Sex)
-SDTnSubj$Dem_Sex  <- relevel(SDTnSubj$Dem_Sex , ref = "Male")
-# ScatterplotMatrix
-scatterplotMatrix(~ BA_scores + SupraD_Scores + VVIQ_Scores + d + c, smooth=FALSE, 
-                  by.group=TRUE, regLine=TRUE, data=SDTnSubj, row1attop = TRUE, legend= c(coords="bottomright"))
-#There appears to be a positive association between BA_Scores and SupraD scores, as well as VVIQ and c
-
-#Differences for memory type
-#Create dataframe
-Item_MLE_40 <- data.frame(cbind(unique(Subj_40$ID), Item_d_40, Item_c_40))
-colnames(Item_MLE_40) <- c("ID", "d", "c")
-Item_MLE_40 <- Item_MLE_40 %>% mutate(Memory = "Item")
-Source_MLE_40 <- data.frame(cbind(unique(Subj_40$ID), Source_d_40, Source_c_40))
-colnames(Source_MLE_40) <- c("ID", "d", "c")
-Source_MLE_40 <- Source_MLE_40 %>% mutate(Memory = "Source")
-Memory_MLE_40 <- Item_MLE_40 %>% full_join(Source_MLE_40)
-
-
-#Fit linear models
-### N = 40 ###
-## d (Sensitivity)
-if (!file.exists("Mem_diff_d_lm_40.rda")) {
-  Mem_diff_d_lm_40 <- brm(d ~  Memory + (1 | ID), data = Memory_MLE_40, family = gaussian(), seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
-  save(Mem_diff_d_lm_40, file = "./Mem_diff_d_lm_40.rda") 
-} else {
-  load("Mem_diff_d_lm_40.rda")  
-}
-pp_check(Mem_diff_d_lm_40, ndraws = 40) #Looks like an ok fit
-summary(Mem_diff_d_lm_40)
-pd(Mem_diff_d_lm_40)
-hdi(Mem_diff_d_lm_40,ci=0.89)
-#0.91 [0.7, 1.11]  more sensitive for item memory; 1.71x more sensitive than source memory
-# 100% pd
-
-## c (Response bias)
-if (!file.exists("Mem_diff_c_lm_40.rda")) {
-  Mem_diff_c_lm_40 <- brm(c ~  Memory + (1 | ID), data = Memory_MLE_40, family = gaussian(), seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
-  save(Mem_diff_c_lm_40, file = "./Mem_diff_c_lm_40.rda") 
-} else {
-  load("Mem_diff_c_lm_40.rda")  
-}
-pp_check(Mem_diff_c_lm_40, ndraws = 40) #Looks like an ok fit
-summary(Mem_diff_c_lm_40)
-pd(Mem_diff_c_lm_40)
-hdi(Mem_diff_c_lm_40,ci=0.89)
-#.3 [0.17, 0.44] more liberal for item judgements
-# 99.99% pd
-
-#Create dataframe to visualize differences
-SDT_Item <- cbind(Subj_40$ID, Item_d_40, Item_c_40, rep("Item", length(Subj_40$ID)))
-SDT_Src <- cbind(Subj_40$ID, Source_d_40, Source_c_40, rep("Source", length(Subj_40$ID)))
-colnames(SDT_Item) <- c("ID", "d", "c", "Memory"); colnames(SDT_Src) <- c("ID", "d", "c", "Memory")
-SDT_Item <- data.frame(SDT_Item); SDT_Src <- data.frame(SDT_Src)
-SDT_Item$ID <- factor(SDT_Item$ID); SDT_Src$ID <- factor(SDT_Src$ID); SDT_Item$Memory <- factor(SDT_Item$Memory); SDT_Src$Memory <- factor(SDT_Src$Memory)
-SDT_Item$d <- as.numeric(SDT_Item$d); SDT_Src$d <- as.numeric(SDT_Src$d);  SDT_Item$c <- as.numeric(SDT_Item$c); SDT_Src$c <- as.numeric(SDT_Src$c)
-SDT_Memory <- SDT_Item %>% full_join(SDT_Src)
-#Create Plots
-SDT_Memory %>% ggplot(aes(x=Memory, y=d, group=ID)) + ylab("d' score") +  xlab("Memory Type") + geom_point() + geom_line() + theme_classic() 
-SDT_Memory %>% ggplot(aes(x=Memory, y=c, group=ID)) + ylab("c score") +  xlab("Memory Type") + geom_point() + geom_line() + theme_classic() 
-
-
-#### MEMORY ####
+#### MEMORY: SDT ####
 ## d ##
 item_d <- c(1.4291, 2.3790, 1.5387, 2.2067, 2.6203, 2.1617, 2.7638, 2.2080, 2.2372, 
             2.4630, 2.4500, 2.2123, 1.8736, 2.4740, 2.0284, 2.8290, 2.1278, 1.8139, 
@@ -1580,6 +1523,7 @@ if (!file.exists("SciRep40_Mem_d_lm.rda")) {
 }
 pp_check(Mem_d_lm_40, ndraws = 40) #Looks like a great fit
 summary(Mem_d_lm_40)
+mcse(Mem_d_lm_40)
 hdi(Mem_d_lm_40, ci = 0.89) # -1.03, -0.75
 pd(Mem_d_lm_40)
 plot_model(Mem_d_lm_40, type="pred")
@@ -1618,6 +1562,7 @@ if (!file.exists("SciRep40_Mem_c_lm.rda")) {
 }
 pp_check(Mem_c_lm_40, ndraws = 40) #Looks like a great fit
 summary(Mem_c_lm_40)
+mcse(Mem_c_lm_40)
 hdi(Mem_c_lm_40, ci = 0.89) # 0.67, 0.74
 pd(Mem_c_lm_40)
 plot_model(Mem_c_lm_40, type="pred")
@@ -1660,6 +1605,7 @@ if (!file.exists("SciRep40_item_val_d_lm.rda")) {
 }
 pp_check(val_d_lm_40, ndraws = 40) #Looks like a great fit
 summary(val_d_lm_40)
+mcse(val_d_lm_40)
 hdi(val_d_lm_40, ci = 0.89)
 pd(val_d_lm_40)
 plot_model(val_d_lm_40, type="pred")
@@ -1703,6 +1649,7 @@ if (!file.exists("SciRep40_item_val_c_lm.rda")) {
 }
 pp_check(val_c_lm_40, ndraws = 40) #Looks like a great fit
 summary(val_c_lm_40)
+mcse(val_c_lm_40)
 hdi(val_c_lm_40, ci = 0.89)
 pd(val_c_lm_40)
 plot_model(val_c_lm_40, type="pred")
@@ -1747,6 +1694,7 @@ if (!file.exists("SciRep40_src_val_d_lm.rda")) {
 }
 pp_check(Src_val_d_lm_40, ndraws = 40) #Looks like a great fit
 summary(Src_val_d_lm_40)
+mcse(Src_val_d_lm_40)
 hdi(Src_val_d_lm_40, 0.88)
 pd(Src_val_d_lm_40)
 plot_model(Src_val_d_lm_40, type="pred")
@@ -1776,220 +1724,22 @@ Src_full_c <- Src_neg_c %>% right_join(Src_neut_c)
 Src_full_c <- Src_full_c %>% pivot_longer(c("Neg", "Neut"), names_to = "Valence", values_to = "c")
 
 #Analyze results
-if (!file.exists("SciRep40_src_val_c_lm.rda")) {
-  Src_val_c_lm_40 <- brm(c ~  Valence + (1 | ID), data = Src_full_c, family = gaussian(), prior = c_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
-  save(Src_val_c_lm_40, file = "./SciRep40_src_val_c_lm.rda") 
+if (!file.exists("SciRep40_AD_val_c_lm.rda")) {
+  AD_val_c_lm_40 <- brm(c ~  Valence + (1 | ID), data = Src_full_c, family = gaussian(), prior = c_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(AD_val_c_lm_40, file = "./SciRep40_AD_val_c_lm.rda") 
 } else {
-  load("SciRep40_src_val_c_lm.rda")  
+  load("SciRep40_AD_val_c_lm.rda")  
 }
-pp_check(Src_val_c_lm_40, ndraws = 40) #Looks like a great fit
-summary(Src_val_c_lm_40)
-hdi(Src_val_c_lm_40, 0.89)
-pd(Src_val_c_lm_40)
-plot_model(Src_val_c_lm_40, type="pred")
+pp_check(AD_val_c_lm_40, ndraws = 40) #Looks like a great fit
+summary(AD_val_c_lm_40)
+mcse(AD_val_c_lm_40)
+hdi(AD_val_c_lm_40, 0.89)
+pd(AD_val_c_lm_40)
+plot_model(AD_val_c_lm_40, type="pred")
 # -0.18 [-0.28, -0.08]  less conservative for negative judgments
 # 99.67% pd
 
-
-#### M-Ratio & Subjectives ####
-#Joining the SDT data with the Subjective Data
-#Create data frame
-MLE_2SDT_Src_40 <- data.frame(unique(sort(Subj_40$ID)), src_d, src_c)
-colnames(MLE_2SDT_Src_40) <- c("ID", "d_Src", "c_Src")
-
-#Subjective and Overall SDT
-Subj_40$ID <- as.factor(Subj_40$ID)
-OverallSDT_Subj <- Subj_40 %>% full_join(MLE_2SDT_40, by = "ID") %>% full_join(MLE_2SDT_Src_40, by = "ID")
-
-##### Item #####
-#Vividness of Visual Imagery Questionnaire (VVIQ)
-OverallSDT_Subj %>% ggplot(aes(x=VVIQ_Scores, y= Item_MRat[above_d])) + xlab("VVIQ Scores") + ylab("M-Ratio") + geom_point() + theme_classic()
-cor(OverallSDT_Subj$VVIQ_Scores, Item_MRat[above_d]) #-0.092 correlation
-if (!file.exists("VVIQ_Mratio_Item.rda")) {
-  VVIQ_Mratio_Item <- brm(Item_MRat ~ VVIQ_Scores, data = OverallSDT_Subj, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE))
-  save(VVIQ_Mratio_Item, file = "./VVIQ_Mratio_Item.rda") 
-} else {
-  load("VVIQ_Mratio_Item.rda")  
-}
-pp_check(VVIQ_Mratio_Item, ndraws = 40) #Great fit
-summary(VVIQ_Mratio_Item)
-ci(VVIQ_Mratio_Item, method = "HDI", ci = 0.89)
-#No apparent association in scatterplot, and no meaningful association in linear model
-
-# Body Perception Questionnaire - Autonomic reactivity
-OverallSDT_Subj %>% ggplot(aes(x=Auto_Rct, y= Item_MRat)) + xlab("Autonomic Reactivity Scores") + ylab("M-Ratio") + geom_point() + theme_classic()
-cor(OverallSDT_Subj$Auto_Rct, OverallSDT_Subj$Item_MRat) #0.049 correlation
-if (!file.exists("BA_Item_MRatio.rda")) {
-  BA_Item_MRatio <- brm(Item_MRat ~ Auto_Rct, data = OverallSDT_Subj, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE))
-  save(BA_Item_MRatio, file = "./BA_Item_MRatio.rda") 
-} else {
-  load("BA_Item_MRatio.rda")  
-}
-pp_check(BA_Item_MRatio, ndraws = 40) #Great fit
-print(summary(BA_Item_MRatio),digits=3)
-ci(BA_Item_MRatio, method = "HDI", ci = 0.89)
-#No apparent association in scatterplot, and no meaningful association in linear model
-
-# Body Perception Questionnaire - Body Awareness
-OverallSDT_Subj %>% ggplot(aes(x=BA_scores, y= Item_MRat)) + xlab("Body Awareness Scores") + ylab("M-Ratio") + geom_point() + theme_classic()
-cor(OverallSDT_Subj$BA_scores, OverallSDT_Subj$Item_MRat) #0.093 correlation
-if (!file.exists("BA_Item_MRatio.rda")) {
-  BA_Item_MRatio <- brm(Item_MRat ~ BA_scores, data = OverallSDT_Subj, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE))
-  save(BA_Item_MRatio, file = "./BA_Item_MRatio.rda") 
-} else {
-  load("BA_Item_MRatio.rda")  
-}
-pp_check(BA_Item_MRatio, ndraws = 40) #Great fit
-print(summary(BA_Item_MRatio),digits=4)
-ci(BA_Item_MRatio, method = "HDI", ci = 0.89, digits=3)
-#No apparent association in scatterplot, and no meaningful association in linear model
-
-#Body Perception Questionnaire - SupraD scores
-OverallSDT_Subj %>% ggplot(aes(x=SupraD_Scores, y= Item_MRat)) + xlab("SupraD Scores") + ylab("M-Ratio") + geom_point() + theme_classic()
-cor(OverallSDT_Subj$SupraD_Scores, OverallSDT_Subj$Item_MRat) #0.12 correlation
-if (!file.exists("SupraD_Item_MRatio.rda")) {
-  SupraD_Item_MRatio <- brm(Item_MRat ~ SupraD_Scores, data = OverallSDT_Subj, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE))
-  save(SupraD_Item_MRatio, file = "./SupraD_Item_MRatio.rda") 
-} else {
-  load("SupraD_Item_MRatio.rda")  
-}
-pp_check(SupraD_Item_MRatio, ndraws = 40) #Good fit
-summary(SupraD_Item_MRatio)
-ci(SupraD_Item_MRatio, method = "HDI", ci = 0.89)
-#No apparent association in scatterplot, and no meaningful association in linear model
-
-#Body Perception Questionnaire - SubD scores
-OverallSDT_Subj %>% ggplot(aes(x=SubD_Scores, y = Item_MRat)) + xlab("SubD Scores") + ylab("M-Ratio") + geom_point() + theme_classic()
-cor(OverallSDT_Subj$SubD_Scores, OverallSDT_Subj$Item_MRat) #-0.069 correlation
-if (!file.exists("SubD_Item_MRatio.rda")) {
-  SubD_Item_MRatio <- brm(Item_MRat ~ SubD_Scores, data = OverallSDT_Subj, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE))
-  save(SubD_Item_MRatio, file = "./SubD_Item_MRatio.rda") 
-} else {
-  load("SubD_Item_MRatio.rda")  
-}
-pp_check(SubD_Item_MRatio, ndraws = 40) #Great fit
-summary(SubD_Item_MRatio)
-ci(SubD_Item_MRatio, method = "HDI", ci = 0.89)
-#No apparent association in scatterplot, and no meaningful association in linear model
-
-##### Source #####
-#Vividness of Visual Imagery Questionnaire (VVIQ)
-OverallSDT_Subj_40 %>% ggplot(aes(x=VVIQ_Scores, y= Src_MRat)) + xlab("VVIQ Scores") + ylab("M-Ratio") + geom_point() + theme_classic()
-cor(OverallSDT_Subj_40$VVIQ_Scores, OverallSDT_Subj_40$Src_MRat) #.34 correlation
-if (!file.exists("VVIQ_Mratio_Src.rda")) {
-  VVIQ_Mratio_Src <- brm(Src_MRat ~ VVIQ_Scores, data = OverallSDT_Subj_40, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE))
-  save(VVIQ_Mratio_Src, file = "./VVIQ_Mratio_Src.rda") 
-} else {
-  load("VVIQ_Mratio_Src.rda")  
-}
-pp_check(VVIQ_Mratio_Src, ndraws = 40) #Great fit
-summary(VVIQ_Mratio_Src)
-ci(VVIQ_Mratio_Src, method = "HDI", ci = 0.89)
-pd(VVIQ_Mratio_Src)
-hdi(VVIQ_Mratio_Src, ci = 0.89)
-#VVIQ meaningfully associated with Source memory
-
-# Body Perception Questionnaire - Autonomic Reactivity
-OverallSDT_Subj_40 %>% ggplot(aes(x=Auto_Rct, y= Src_MRat)) + xlab("Body Awareness Scores") + ylab("M-Ratio") + geom_point() + theme_classic()
-cor(OverallSDT_Subj_40$Auto_Rct, OverallSDT_Subj_40$Src_MRat) #0.19 correlation
-if (!file.exists("AR_Src_MRatio.rda")) {
-  AR_Src_MRatio <- brm(Src_MRat ~ Auto_Rct, data = OverallSDT_Subj_40, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE))
-  save(BA_Src_MRatio, file = "./AR_Src_MRatio.rda") 
-} else {
-  load("AR_Src_MRatio.rda")  
-}
-pp_check(AR_Src_MRatio, ndraws = 40) #Great fit
-print(summary(AR_Src_MRatio), digits = 4)
-print(ci(AR_Src_MRatio, method = "HDI", ci = 0.89), digits = 9)
-pd(AR_Src_MRatio)
-hdi(AR_Src_MRatio, ci = 0.89)
-#Non-meaningful association between autonomic arousal and Source metacognitive efficiency
-
-# Body Perception Questionnaire - Body Awareness
-OverallSDT_Subj_40 %>% ggplot(aes(x=BA_scores, y= Src_MRat)) + xlab("Body Awareness Scores") + ylab("M-Ratio") + geom_point() + theme_classic()
-cor(OverallSDT_Subj_40$BA_scores, OverallSDT_Subj_40$Src_MRat) #0.15 correlation
-if (!file.exists("BA_Src_MRatio.rda")) {
-  BA_Src_MRatio <- brm(Src_MRat ~ BA_scores, data = OverallSDT_Subj_40, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE))
-  save(BA_Src_MRatio, file = "./BA_Src_MRatio.rda") 
-} else {
-  load("BA_Src_MRatio.rda")  
-}
-pp_check(BA_Src_MRatio, ndraws = 40) #Great fit
-summary(BA_Src_MRatio)
-ci(BA_Src_MRatio, method = "HDI", ci = 0.89)
-pd(BA_Src_MRatio)
-hdi(BA_Src_MRatio, ci = 0.89)
-#No apparent association in scatterplot, and no meaningful association in linear model
-
-#Body Perception Questionnaire - SupraD scores
-OverallSDT_Subj_40 %>% ggplot(aes(x=SupraD_Scores, y= Src_MRat)) + xlab("SupraD Scores") + ylab("M-Ratio") + geom_point() + theme_classic()
-cor(OverallSDT_Subj_40$SupraD_Scores, OverallSDT_Subj_40$Src_MRat) #0.19 correlation
-if (!file.exists("SupraD_Src_MRatio.rda")) {
-  SupraD_Src_MRatio <- brm(Src_MRat ~ SupraD_Scores, data = OverallSDT_Subj_40, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE))
-  save(SupraD_Src_MRatio, file = "./SupraD_Src_MRatio.rda") 
-} else {
-  load("SupraD_Src_MRatio.rda")  
-}
-pp_check(SupraD_Src_MRatio, ndraws = 40) #Good fit
-summary(SupraD_Src_MRatio)
-ci(SupraD_Src_MRatio, method = "HDI", ci = 0.89)
-pd(SupraD_Src_MRatio)
-hdi(SupraD_Src_MRatio, ci = 0.89)
-#At 89% confidence there is no association between Supradiaphramatic reactivity and MRatio Scores in Source Memory
-
-#Body Perception Questionnaire - SubD scores
-OverallSDT_Subj_40 %>% ggplot(aes(x=SubD_Scores, y = Src_MRat)) + xlab("SubD Scores") + ylab("M-Ratio") + geom_point() + theme_classic()
-cor(OverallSDT_Subj_40$SubD_Scores, OverallSDT_Subj_40$Src_MRat) #0.15 correlation
-if (!file.exists("SubD_Src_MRatio.rda")) {
-  SubD_Src_MRatio <- brm(Src_MRat ~ SubD_Scores, data = OverallSDT_Subj_40, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE))
-  save(SubD_Src_MRatio, file = "./SubD_Src_MRatio.rda") 
-} else {
-  load("SubD_Src_MRatio.rda")  
-}
-pp_check(SubD_Src_MRatio, ndraws = 40) #Great fit
-print(summary(SubD_Src_MRatio), digits=4)
-ci(SubD_Src_MRatio, method = "HDI", ci = 0.89)
-pd(SupraD_Src_MRatio)
-hdi(SupraD_Src_MRatio, ci = 0.89)
-#No apparent association in scatterplot, and no meaningful association in linear model
-
-## Autonomic Arousal + VVIQ
-#Body Perception Questionnaire - SupraD scores
-if (!file.exists("SupraDVVIQ_Src_MRatio.rda")) {
-  SupraDVVIQ_Src_MRatio <- brm(Src_MRat ~ Auto_Rct + VVIQ_Scores, data = OverallSDT_Subj_40, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE))
-  save(SupraDVVIQ_Src_MRatio, file = "./SupraDVVIQ_Src_MRatio.rda") 
-} else {
-  load("SupraDVVIQ_Src_MRatio.rda")  
-}
-pp_check(SupraDVVIQ_Src_MRatio, ndraws = 40) #Good fit
-summary(SupraDVVIQ_Src_MRatio)
-ci(SupraDVVIQ_Src_MRatio, method = "HDI", ci = 0.89)
-pd(SupraD_Src_MRatio)
-hdi(SupraD_Src_MRatio, ci = 0.89)
-#AutoReact (0.04 [0.01, 0.08]) & VVIQ (0.04 [0.01, 0.07])
-
-if (!file.exists("SupraDVVIQ_Src_MRatio_int.rda")) {
-  SupraDVVIQ_Src_MRatio_int <- brm(Src_MRat ~ Auto_Rct * VVIQ_Scores, data = OverallSDT_Subj_40, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE))
-  save(SupraDVVIQ_Src_MRatio_int, file = "./SupraDVVIQ_Src_MRatio_int.rda") 
-} else {
-  load("SupraDVVIQ_Src_MRatio_int.rda")  
-}
-pp_check(SupraDVVIQ_Src_MRatio_int, ndraws = 40) #Good fit
-summary(SupraDVVIQ_Src_MRatio_int)
-ci(SupraDVVIQ_Src_MRatio_int, method = "HDI", ci = 0.89)
-pd(SupraDVVIQ_Src_MRatio_int)
-hdi(SupraDVVIQ_Src_MRatio_int, ci = 0.89)
-
-(Mrat_Subj_comparisons <- bayesfactor_models(VVIQ_Mratio_Src, AR_Src_MRatio, SupraDVVIQ_Src_MRatio, SupraDVVIQ_Src_MRatio_int, denominator = VVIQ_Mratio_Src))
-#Inconclusive evidence in support of 3 models: SupraDScores, VVIQ, and their combined model.
-
-
-##### Standardize Meaningful Predictors #####
-### Item ###
-#N/A
-
-### Source ### 
-## BPQ - Supradiaphragmatic Reactivity ##
+##### Standardize Subjective measures #####
 Stand_BA <- scale(Subj_40$BA_scores)
 
 ## VVIQ ##
@@ -1999,147 +1749,204 @@ Stand_VVIQ <- scale(Subj_40$VVIQ_Scores)
 Stand_VVIQ <- t(matrix(Stand_VVIQ, ncol=1)) #Transposed matrix to meet specifications
 Stand_BA <- t(matrix(Stand_BA, ncol=1)) #Transposed matrix to meet specifications
 
-
 #Export for use in Matlab
-writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/VVIQ_SubjCov_40x.mat", x=Stand_VVIQ) #Write Mat file for Source Subjective Covariates
-writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/BA_SubjCov_40.mat", x=Stand_BA) #Write Mat file for Source Subjective Covariates
+#writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/VVIQ_SubjCov_40_SR.mat", x=Stand_VVIQ) #Write Mat file for Source Subjective Covariates
+#writeMat(con="/Users/johnnycastillo/Library/Mobile Documents/com~apple~CloudDocs/Desktop/Grad School/G4/Metad_40/BA_SubjCov_40_SR.mat", x=Stand_BA) #Write Mat file for Source Subjective Covariates
 
-
-#Evaluate results of RH-Meta-d' analysis
-Source_MRat[Stand_SupraD > 1]
-Source_MRat[Stand_SupraD < -1]
 
 #### Type 1 (d'/c) Subjectives ####
+# Create dataframe
+#Subjective and Overall SDT
+Subj_40$ID <- as.factor(Subj_40$ID)
+MLE_2SDT <- data.frame(unique(sort(Subj_40$ID)), item_d, item_c, "Item")
+colnames(MLE_2SDT) <- c("ID", "d", "c", "Memory")
+MLE_2SDT_Src <- data.frame(unique(sort(Subj_40$ID)), src_d$Src, src_c, "AD")
+colnames(MLE_2SDT_Src) <- c("ID", "d", "c", "Memory")
+FULL_MLE_SDT <- rbind(MLE_2SDT, MLE_2SDT_Src)
+
+#Joining the SDT data with the Subjective Data
+OverallSDT_Subj <- Subj_40 %>% select("ID", "VVIQ_Scores", "BA_scores") %>% full_join(FULL_MLE_SDT)
+Item_OverallSDT_Subj <- OverallSDT_Subj %>% filter(Memory == "Item")
+AD_OverallSDT_Subj <- OverallSDT_Subj %>% filter(Memory == "AD")
+
 ## d' ##
+Item_VVIQ_d_prior <-
+  prior(normal(1.5, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "VVIQ_Scores")
 #Vividness of Visual Imagery Questionnaire (VVIQ)
-OverallSDT_Subj %>% ggplot(aes(x=VVIQ_Scores, y= Item_d_40)) + xlab("VVIQ Scores") + ylab("d'") + geom_point() + theme_classic()
-cor(OverallSDT_Subj$VVIQ_Scores, OverallSDT_Subj$d) #0.23 correlation
-if (!file.exists("VVIQ_Mratio_Item.rda")) {
-  VVIQ_d_Item <- brm(d ~ VVIQ_Scores, data = OverallSDT_Subj_40, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
-  save(VVIQ_Mratio_Item, file = "./VVIQ_Mratio_Item.rda") 
+Item_OverallSDT_Subj %>% ggplot(aes(x=VVIQ_Scores, y= d)) + xlab("VVIQ Scores") + ylab("d'") + geom_point() + theme_classic() + geom_smooth(method = "lm", color="red", linetype = "dashed", se = TRUE)
+cor(Item_OverallSDT_Subj$VVIQ_Scores, Item_OverallSDT_Subj$d) #0.23 correlation
+if (!file.exists("SciRep40_VVIQ_d_Item.rda")) {
+  Item_VVIQ_d_Item <- brm(d ~ VVIQ_Scores, data = Item_OverallSDT_Subj, family = gaussian(), prior = Item_VVIQ_d_prior, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(Item_VVIQ_d_Item, file = "./SciRep40_VVIQ_d_Item.rda") 
 } else {
-  load("VVIQ_Mratio_Item.rda")  
+  load("SciRep40_VVIQ_d_Item.rda")  
 }
-pp_check(VVIQ_d_Item, ndraws = 40) #Great fit
-summary(VVIQ_d_Item)
-round(ci(VVIQ_d_Item, method = "HDI", ci = 0.86)[2,3], 5); round(ci(VVIQ_d_Item, method = "HDI", ci = 0.86)[2,4], 5)
-pd(VVIQ_d_Item)
-hdi(VVIQ_d_Item, ci = 0.89)
-#No apparent associations
+pp_check(Item_VVIQ_d_Item, ndraws = 40) #Looks like a great fit
+summary(Item_VVIQ_d_Item)
+mcse(Item_VVIQ_d_Item)
+hdi(Item_VVIQ_d_Item, 0.89); ci(Item_VVIQ_d_Item, method = "HDI", ci = 0.89)[2,3];ci(Item_VVIQ_d_Item, method = "HDI", ci = 0.85)[2,4]
+pd(Item_VVIQ_d_Item)
+plot_model(Item_VVIQ_d_Item, type="pred")
+#No apparent association in scatterplot, and no meaningful association in linear model
+# 0.01 [-0.00, 0.02]  
+# 92.81% pd
 
 # Body Perception Questionnaire - Body Awareness
-OverallSDT_Subj %>% ggplot(aes(x=BA_scores, y= Item_d_40)) + xlab("Body Awareness Scores") + ylab("d'") + geom_point() + theme_classic()
-cor(OverallSDT_Subj$BA_scores, OverallSDT_Subj$Item_d_40) #-0.1 correlation
-if (!file.exists("BA_Item_MRatio.rda")) {
-  BA_Item_d <- brm(Item_d_40 ~ BA_scores, data = OverallSDT_Subj, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE))
-  save(BA_Item_MRatio, file = "./BA_Item_MRatio.rda") 
+Item_BA_d_prior <-
+  prior(normal(1.5, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "BA_scores")
+Item_OverallSDT_Subj %>% ggplot(aes(x=BA_scores, y= d)) + xlab("Body Awareness Scores") + ylab("d'") + geom_point() + theme_classic() + geom_smooth(method = "lm", color="red", linetype = "dashed", se = TRUE)
+cor(Item_OverallSDT_Subj$BA_scores, Item_OverallSDT_Subj$d) #-0.084 correlation
+if (!file.exists("SciRep40_BA_d_Item.rda")) {
+  BA_Item_d <- brm(d ~ BA_scores, data = Item_OverallSDT_Subj, family = gaussian(), prior = Item_BA_d_prior, iter = 10000, save_pars = save_pars(all = TRUE))
+  save(BA_Item_d, file = "./SciRep40_BA_d_Item.rda") 
 } else {
-  load("BA_Item_MRatio.rda")  
+  load("SciRep40_BA_d_Item.rda")  
 }
 pp_check(BA_Item_d, ndraws = 40) #Great fit
 print(summary(BA_Item_d),digits=4)
-ci(BA_Item_d, method = "HDI", ci = 0.85)[2,3];ci(BA_Item_d, method = "HDI", ci = 0.85)[2,4]
+mcse(BA_Item_d)
+hdi(BA_Item_d, ci = 0.89); ci(BA_Item_d, method = "HDI", ci = 0.89)[2,3];ci(BA_Item_d, method = "HDI", ci = 0.89)[2,4]
 pd(BA_Item_d)
-hdi(BA_Item_d, ci = 0.89)
+plot_model(BA_Item_d, type="pred")
 #No apparent association in scatterplot, and no meaningful association in linear model
+# -0.0012 [-0.00, 0.02]  
+# 69.33% pd
 
 ## c ##
+Item_VVIQ_c_prior <-
+  prior(normal(0, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "VVIQ_Scores")
 #Vividness of Visual Imagery Questionnaire (VVIQ)
-OverallSDT_Subj %>% ggplot(aes(x=VVIQ_Scores, y= Item_c_40)) + xlab("VVIQ Scores") + ylab("c") + geom_point() + theme_classic()
-cor(OverallSDT_Subj$VVIQ_Scores, OverallSDT_Subj$Item_c_40) #0.27 correlation
-if (!file.exists("VVIQ_Mratio_Item.rda")) {
-  VVIQ_c_Item <- brm(Item_c_40 ~ VVIQ_Scores, data = OverallSDT_Subj, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
-  save(VVIQ_Mratio_Item, file = "./VVIQ_Mratio_Item.rda") 
+Item_OverallSDT_Subj %>% ggplot(aes(x=VVIQ_Scores, y= c)) + xlab("VVIQ Scores") + ylab("c") + geom_point() + theme_classic() + geom_smooth(method = "lm", color="red", linetype = "dashed", se = TRUE)
+cor(Item_OverallSDT_Subj$VVIQ_Scores, Item_OverallSDT_Subj$c) #0.15 correlation
+if (!file.exists("SciRep40_VVIQ_c_Item.rda")) {
+  VVIQ_c_Item <- brm(c ~ VVIQ_Scores, data = Item_OverallSDT_Subj, family = gaussian(), prior = Item_VVIQ_c_prior, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(VVIQ_c_Item, file = "./SciRep40_VVIQ_c_Item.rda") 
 } else {
-  load("VVIQ_Mratio_Item.rda")  
+  load("SciRep40_VVIQ_c_Item.rda")  
 }
 pp_check(VVIQ_c_Item, ndraws = 40) #Great fit
 summary(VVIQ_c_Item);summary(VVIQ_c_Item)[14]
-round(ci(VVIQ_c_Item, method = "HDI", ci = 0.88)[2,3], 4);round(ci(VVIQ_c_Item, method = "HDI", ci = 0.88)[2,4],4)
+mcse(VVIQ_c_Item)
+hdi(VVIQ_c_Item, ci = 0.89); round(ci(VVIQ_c_Item, method = "HDI", ci = 0.89)[2,3], 4);round(ci(VVIQ_c_Item, method = "HDI", ci = 0.89)[2,4],4)
 pd(VVIQ_c_Item)
-#Minor association between VVIQ and c (response bias)
-#Visual imagery capabilities are positively associated with more conservative responding
+plot_model(VVIQ_c_Item, type="pred")
+#No apparent association in scatterplot, and no meaningful association in linear model
+# -0.0021 [-0.0015, 0.0058]  
+# 82.33% pd
 
 # Body Perception Questionnaire - Body Awareness
-OverallSDT_Subj %>% ggplot(aes(x=BA_scores, y= Item_c_40)) + xlab("Body Awareness Scores") + ylab("c") + geom_point() + theme_classic()
-cor(OverallSDT_Subj$BA_scores, OverallSDT_Subj$Item_c_40) #-0.08 correlation
-if (!file.exists("BA_Item_MRatio.rda")) {
-  BA_Item_c <- brm(Item_c_40 ~ BA_scores, data = OverallSDT_Subj, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
-  save(BA_Item_MRatio, file = "./BA_Item_MRatio.rda") 
+Item_BA_c_prior <-
+  prior(normal(0, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "BA_scores")
+Item_OverallSDT_Subj %>% ggplot(aes(x=BA_scores, y= c)) + xlab("Body Awareness Scores") + ylab("c") + geom_point() + theme_classic() + geom_smooth(method = "lm", color="red", linetype = "dashed", se = TRUE)
+cor(OverallSDT_Subj$BA_scores, OverallSDT_Subj$c) #0.0072 correlation
+if (!file.exists("SciRep40_BA_Item.rda")) {
+  BA_Item_c <- brm(c ~ BA_scores, data = Item_OverallSDT_Subj, family = gaussian(), iter = 10000, prior= Item_BA_c_prior, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(BA_Item_c, file = "./SciRep40_BA_Item.rda") 
 } else {
-  load("BA_Item_MRatio.rda")  
+  load("SciRep40_BA_Item.rda")  
 }
 pp_check(BA_Item_c, ndraws = 40) #Great fit
 print(summary(BA_Item_c),digits=4)
-ci(BA_Item_c, method = "HDI", ci = 0.85)[2,3];ci(BA_Item_c, method = "HDI", ci = 0.85)[2,4]
+mcse(BA_Item_c)
+hdi(BA_Item_c, ci = 0.89); ci(BA_Item_c, method = "HDI", ci = 0.89)[2,3];ci(BA_Item_c, method = "HDI", ci = 0.89)[2,4]
 pd(BA_Item_c)
+plot_model(BA_Item_c, type="pred")
 #No apparent association in scatterplot, and no meaningful association in linear model
-
+# 0.00006 [-0.0011, 0.0023]  
+# 72.75% pd
 
 ##### Source #####
 ## d' ##
+Src_VVIQ_d_prior <-
+  prior(normal(1, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "VVIQ_Scores")
 #Vividness of Visual Imagery Questionnaire (VVIQ)
-OverallSDT_Subj_40 %>% ggplot(aes(x=VVIQ_Scores, y= d_Src)) + xlab("VVIQ Scores") + ylab("d'") + geom_point() + theme_classic()
-cor(OverallSDT_Subj_40$VVIQ_Scores, OverallSDT_Subj_40$d_Src) #.19 correlation
-if (!file.exists("VVIQ_Mratio_Src.rda")) {
-  VVIQ_d_Src <- brm(Source_d_40 ~ VVIQ_Scores, data = OverallSDT_Subj_40, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE))
-  save(VVIQ_Mratio_Src, file = "./VVIQ_Mratio_Src.rda") 
+AD_OverallSDT_Subj %>% ggplot(aes(x=VVIQ_Scores, y= d)) + xlab("VVIQ Scores") + ylab("d'") + geom_point() + theme_classic() + geom_smooth(method = "lm", color="red", linetype = "dashed", se = TRUE)
+cor(AD_OverallSDT_Subj$VVIQ_Scores, AD_OverallSDT_Subj$d) #.21 correlation
+if (!file.exists("SciRep40_VVIQ_d_Src.rda")) {
+  VVIQ_d_Src <- brm(d ~ VVIQ_Scores, data = AD_OverallSDT_Subj, family = gaussian(), prior = Src_VVIQ_d_prior, iter = 10000, save_pars = save_pars(all = TRUE))
+  save(VVIQ_d_Src, file = "./SciRep40_VVIQ_d_Src.rda") 
 } else {
-  load("VVIQ_Mratio_Src.rda")  
+  load("SciRep40_VVIQ_d_Src.rda")  
 }
 pp_check(VVIQ_d_Src, ndraws = 40) #Great fit
 summary(VVIQ_d_Src)
-ci(VVIQ_d_Src, method = "HDI", ci = 0.89)[2,3];ci(VVIQ_d_Src, method = "HDI", ci = 0.89)[2,4]
-pd(VVIQ_d_Item)
-hdi(VVIQ_d_Item, ci = 0.89)
+hdi(VVIQ_d_Src, ci = 0.89); ci(VVIQ_d_Src, method = "HDI", ci = 0.89)[2,3];ci(VVIQ_d_Src, method = "HDI", ci = 0.89)[2,4]
+mcse(VVIQ_d_Src)
+pd(VVIQ_d_Src)
+plot_model(VVIQ_d_Src, type="pred")
 #No apprarent associations between VVIQ and sensitivity for source memory
+# 0.01 [-0.0023, 0.021]  
+# 89.55% pd
 
 # Body Perception Questionnaire - Body Awareness
-OverallSDT_Subj_40 %>% ggplot(aes(x=BA_scores, y= d_Src)) + xlab("Body Awareness Scores") + ylab("M-Ratio") + geom_point() + theme_classic()
-cor(OverallSDT_Subj_40$BA_scores, OverallSDT_Subj_40$d_Src) #-0.042 correlation
-if (!file.exists("BA_Src_MRatio.rda")) {
-  BA_Src_d <- brm(Source_d_40 ~ BA_scores, data = OverallSDT_Subj_35, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE))
-  save(BA_Src_MRatio, file = "./BA_Src_MRatio.rda") 
+Src_BA_d_prior <-
+  prior(normal(1, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "BA_scores")
+AD_OverallSDT_Subj %>% ggplot(aes(x=BA_scores, y= d)) + xlab("Body Awareness Scores") + ylab("M-Ratio") + geom_point() + theme_classic() + geom_smooth(method = "lm", color="red", linetype = "dashed", se = TRUE)
+cor(AD_OverallSDT_Subj$BA_scores, AD_OverallSDT_Subj$d) #-0.027 correlation
+if (!file.exists("SciRep40_BA_d_Src.rda")) {
+  BA_Src_d <- brm(d ~ BA_scores, data = AD_OverallSDT_Subj, family = gaussian(), prior = Src_BA_d_prior, iter = 10000, save_pars = save_pars(all = TRUE))
+  save(BA_Src_d, file = "./SciRep40_BA_d_Src.rda") 
 } else {
-  load("BA_Src_MRatio.rda")  
+  load("SciRep40_BA_d_Src.rda")  
 }
 pp_check(BA_Src_d, ndraws = 40) #Great fit
 summary(BA_Src_d)
-ci(BA_Src_d, method = "HDI", ci = 0.89)[2,3];ci(BA_Src_d, method = "HDI", ci = 0.89)[2,4]
+hdi(BA_Src_d, ci = 0.89);ci(BA_Src_d, method = "HDI", ci = 0.89)[2,3];ci(BA_Src_d, method = "HDI", ci = 0.89)[2,4]
+mcse(BA_Src_d)
+pd(BA_Src_d)
+plot_model(BA_Src_d, type="pred")
 #No apparent association in scatterplot, and no meaningful association in linear model
+# -0.00 [-0.006, 0.0052]  
+# 56.47% pd
 
 ## c ##
 #Vividness of Visual Imagery Questionnaire (VVIQ)
-OverallSDT_Subj_40 %>% ggplot(aes(x=VVIQ_Scores, y= c_Src)) + xlab("VVIQ Scores") + ylab("c") + geom_point() + theme_classic()
-cor(OverallSDT_Subj_40$VVIQ_Scores, OverallSDT_Subj_40$c_Src) #.19 correlation
-if (!file.exists("VVIQ_Mratio_Src.rda")) {
-  VVIQ_c_Src <- brm(Source_c_40 ~ VVIQ_Scores, data = OverallSDT_Subj_40, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
-  save(VVIQ_Mratio_Src, file = "./VVIQ_Mratio_Src.rda") 
+AD_OverallSDT_Subj %>% ggplot(aes(x=VVIQ_Scores, y= c)) + xlab("VVIQ Scores") + ylab("c") + geom_point() + theme_classic() + geom_smooth(method = "lm", color="red", linetype = "dashed", se = TRUE)
+cor(AD_OverallSDT_Subj$VVIQ_Scores, AD_OverallSDT_Subj$c) #.13 correlation
+if (!file.exists("SciRep40_VVIQ_c_Src.rda")) {
+  VVIQ_c_Src <- brm(c ~ VVIQ_Scores, data = AD_OverallSDT_Subj, family = gaussian(), prior = Item_VVIQ_c_prior, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(VVIQ_c_Src, file = "./SciRep40_VVIQ_c_Src.rda") 
 } else {
-  load("VVIQ_Mratio_Src.rda")  
+  load("SciRep40_VVIQ_c_Src.rda")  
 }
 pp_check(VVIQ_c_Src, ndraws = 40) #Great fit
 summary(VVIQ_c_Src)
-ci(VVIQ_c_Src, method = "HDI", ci = 0.89)[2,3];ci(VVIQ_c_Src, method = "HDI", ci = 0.89)[2,4]
+hdi(VVIQ_c_Src, ci = 0.89);ci(VVIQ_c_Src, method = "HDI", ci = 0.89)[2,3];ci(VVIQ_c_Src, method = "HDI", ci = 0.89)[2,4]
+mcse(VVIQ_c_Src)
 pd(VVIQ_c_Src)
-hdi(VVIQ_c_Src, ci = 0.89)
+plot_model(VVIQ_c_Src, type="pred")
 #No apprarent associations between VVIQ and sensitivity for source memory
+# 0.00 [-0.0009, 0.0024]  
+# 77.19% pd
 
 # Body Perception Questionnaire - Body Awareness
-OverallSDT_Subj_40 %>% ggplot(aes(x=BA_scores, y= c_Src)) + xlab("Body Awareness Scores") + ylab("M-Ratio") + geom_point() + theme_classic()
-cor(OverallSDT_Subj_40$BA_scores, OverallSDT_Subj_40$c_Src) #0.2 correlation
-if (!file.exists("BA_Src_MRatio.rda")) {
-  BA_Src_c <- brm(c_Src ~ BA_scores, data = OverallSDT_Subj_40, family = gaussian(), iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
-  save(BA_Src_MRatio, file = "./BA_Src_MRatio.rda") 
+AD_OverallSDT_Subj %>% ggplot(aes(x=BA_scores, y= c)) + xlab("Body Awareness Scores") + ylab("M-Ratio") + geom_point() + theme_classic()
+cor(AD_OverallSDT_Subj$BA_scores, AD_OverallSDT_Subj$c) #-0.12 correlation
+if (!file.exists("SciRep40_BA_c_Src.rda")) {
+  BA_Src_c <- brm(c ~ BA_scores, data = AD_OverallSDT_Subj, family = gaussian(), prior = Item_BA_c_prior, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(BA_Src_c, file = "./SciRep40_BA_c_Src.rda") 
 } else {
-  load("BA_Src_MRatio.rda")  
+  load("SciRep40_BA_c_Src.rda")  
 }
 pp_check(BA_Src_c, ndraws = 40) #Great fit
 summary(BA_Src_c)
-ci(BA_Src_c, method = "HDI", ci = 0.89)[2,3];ci(BA_Src_c, method = "HDI", ci = 0.89)[2,4]
+hdi(BA_Src_c, ci = 0.89);ci(BA_Src_c, method = "HDI", ci = 0.89)[2,3];ci(BA_Src_c, method = "HDI", ci = 0.89)[2,4]
+mcse(BA_Src_c)
 pd(BA_Src_c)
-hdi(BA_Src_c, ci = 0.89)
+plot_model(BA_Src_c, type="pred")
 #No apparent association in scatterplot, and no meaningful association in linear model
+# -0.00 [-0.0011, 0.00045]  
+# 76.83% pd
+
+
+
+
 
 #### Model Comparison  ####
 #Create dataframe for model comparisons
