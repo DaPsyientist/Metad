@@ -2048,7 +2048,7 @@ cscore_SubD_Valint <- brm(c_scores ~ Valence*SubD_Scores, data = ValSDT_SubjAll,
 #   (VVIQ, BPQ) for d', but there is moderate evidence for an effect of VVIQ in addition to Valence for c'
 
 
-#### N = 62 Analyses ####
+#### Supplemental: N = 62 Analyses ####
 ID_40 <- as.numeric(levels(Subj_40$ID)[Subj_40$ID])
 ID_22 <- c(120, 134, 140, 141, 147, 152, 162, 165, 182, 197, 209, 218, 220, 228, 252, 255, 259, 262, 263, 274, 283, 284)
 ID_62 <- c(ID_40, ID_22)
@@ -2261,3 +2261,339 @@ plot_model(BA_Item_c_62, type="pred")
 #No apparent association in scatterplot, and no meaningful association in linear model
 # 0.0005 [-0.0013, 0.0023]  
 # 68.41% pd
+
+#### Supplemental: Gender Analyses ####
+## Item SDT and M-Ratio x Gender ##
+
+## Setting the priors
+#Priors for c: 
+c_gen_prior <-
+  prior(normal(0, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "Dem_SexFemale")
+
+#Prior for Item d’:
+itemd_gen_prior <-
+  prior(normal(1.5, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "Dem_SexFemale")
+
+# Prior for Associative detail d’:
+sourced_gen_prior <-
+  prior(normal(1, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "Dem_SexFemale")
+
+#Item d ~ gender
+if (!file.exists("ItemD_gender_lm_40.rda")) {
+  gender_item_d_lm_40 <- brm(d ~ Dem_Sex + (1|ID), data = OverallSDT_Subj, family = gaussian(), prior = itemd_gen_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(gender_item_d_lm_40, file = "./ItemD_gender_lm_40.rda") 
+} else {
+  load("ItemD_gender_lm_40.rda")  
+}
+pp_check(gender_item_d_lm_40, ndraws = 40) 
+summary(gender_item_d_lm_40)
+mcse(gender_item_d_lm_40)
+hdi(gender_item_d_lm_40, ci = 0.89)
+pd(gender_item_d_lm_40)
+
+#Item c ~ gender
+if (!file.exists("ItemC_gender_lm_40.rda")) {
+  gender_item_c_lm_40 <- brm(c ~ Dem_Sex + (1|ID), data = OverallSDT_Subj, family = gaussian(), prior = c_gen_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(gender_item_c_lm_40, file = "./ItemC_gender_lm_40.rda") 
+} else {
+  load("ItemC_gender_lm_40.rda")  
+}
+pp_check(gender_item_c_lm_40, ndraws = 40) 
+summary(gender_item_c_lm_40)
+mcse(gender_item_c_lm_40)
+hdi(gender_item_c_lm_40, ci = 0.89)
+pd(gender_item_c_lm_40)
+
+## Source SDT x Gender ##
+#Source d ~ gender
+if (!file.exists("SrcD_gender_lm_40.rda")) {
+  gender_src_d_lm_40 <- brm(d_Src ~ Dem_Sex + (1|ID), data = OverallSDT_Subj, family = gaussian(), prior = sourced_gen_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(gender_src_d_lm_40, file = "./SrcD_gender_lm_40.rda") 
+} else {
+  load("SrcD_gender_lm_40.rda")  
+}
+pp_check(gender_src_d_lm_40, ndraws = 40) 
+summary(gender_src_d_lm_40)
+mcse(gender_src_d_lm_40)
+hdi(gender_src_d_lm_40, ci = 0.89)
+pd(gender_src_d_lm_40)
+
+# Source c ~ gender
+if (!file.exists("SrcC_gender_lm_40.rda")) {
+  gender_src_c_lm_40 <- brm(c_Src ~ Dem_Sex + (1|ID), data = OverallSDT_Subj, family = gaussian(), prior = c_gen_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(gender_src_c_lm_40, file = "./SrcC_gender_lm_40.rda") 
+} else {
+  load("SrcC_gender_lm_40.rda")  
+}
+pp_check(gender_src_c_lm_40, ndraws = 40) 
+summary(gender_src_c_lm_40)
+mcse(gender_src_c_lm_40)
+hdi(gender_src_c_lm_40, ci = 0.89)
+pd(gender_src_c_lm_40)
+
+## Subjectives x Gender ##
+
+# establishing priors
+VVIQ_gen_prior <-
+  prior(normal(0, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "VVIQ_Scores") + 
+  prior(normal(0, .5), class = "b", coef = "DemSex_Female")
+
+BA_gen_prior <-
+  prior(normal(0, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "BA_scores") + 
+  prior(normal(0, .5), class = "b", coef = "DemSex_Female")
+
+# VVIQ ~ gender 
+if (!file.exists("VVIQ_gender_lm_40.rda")) {
+  gender_VVIQ_lm_40 <- brm(VVIQ_Scores ~ Dem_Sex, data = OverallSDT_Subj, family = gaussian(), seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(gender_VVIQ_lm_40, file = "./VVIQ_gender_lm_40.rda") 
+} else {
+  load("VVIQ_gender_lm_40.rda")  
+}
+pp_check(gender_VVIQ_lm_40, ndraws = 40) 
+summary(gender_VVIQ_lm_40)
+mcse(gender_VVIQ_lm_40)
+hdi(gender_VVIQ_lm_40, ci = 0.89)
+pd(gender_VVIQ_lm_40)
+
+# BA ~ gender 
+if (!file.exists("BA_gender_lm_40.rda")) {
+  gender_BA_lm_40 <- brm(BA_scores ~ Dem_Sex, data = OverallSDT_Subj, family = gaussian(), seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(gender_BA_lm_40, file = "./BA_gender_lm_40.rda") 
+} else {
+  load("BA_gender_lm_40.rda")  
+}
+pp_check(gender_BA_lm_40, ndraws = 40) 
+summary(gender_BA_lm_40)
+mcse(gender_BA_lm_40)
+hdi(gender_BA_lm_40, ci = 0.89)
+pd(gender_BA_lm_40)
+
+## Item SDT ~ Subjectives + gender ##
+
+## Setting the priors
+#Priors for c: 
+c_gen_VVIQ_prior <-
+  prior(normal(0, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "Dem_SexFemale") + 
+  prior(normal(0, .5), class = "b", coef = "VVIQ_Scores")
+
+c_gen_BA_prior <-
+  prior(normal(0, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "Dem_SexFemale") + 
+  prior(normal(0, .5), class = "b", coef = "BA_scores")
+
+#Prior for Item d’:
+itemd_gen_VVIQ_prior <-
+  prior(normal(1.5, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "Dem_SexFemale") +
+  prior(normal(0, .5), class = "b", coef = "VVIQ_Scores")
+
+itemd_gen_BA_prior <-
+  prior(normal(1.5, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "Dem_SexFemale") +
+  prior(normal(0, .5), class = "b", coef = "BA_scores")
+
+# Prior for Associative detail d’:
+sourced_gen_VVIQ_prior <-
+  prior(normal(1, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "Dem_SexFemale") +
+  prior(normal(0, .5), class = "b", coef = "VVIQ_Scores")
+
+sourced_gen_BA_prior <-
+  prior(normal(1, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "Dem_SexFemale") +
+  prior(normal(0, .5), class = "b", coef = "BA_scores")
+
+## Item SDT ~ VVIQ + gender ##
+
+# d score
+if (!file.exists("ItemD_VVIQgender_lm_40.rda")) {
+  ItemD_VVIQgender_lm_40 <- brm(d ~ VVIQ_Scores + Dem_Sex + (1 | ID), data = OverallSDT_Subj_40, family = gaussian(), prior = itemd_gen_VVIQ_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(ItemD_VVIQgender_lm_40, file = "./ItemD_VVIQgender_lm_40.rda") 
+} else {
+  load("ItemD_VVIQgender_lm_40.rda")  
+}
+pp_check(ItemD_VVIQgender_lm_40, ndraws = 40) 
+summary(ItemD_VVIQgender_lm_40)
+mcse(ItemD_VVIQgender_lm_40)
+hdi(ItemD_VVIQgender_lm_40, ci = 0.89)
+pd(ItemD_VVIQgender_lm_40)
+
+# c score
+if (!file.exists("ItemC_VVIQgender_lm_40.rda")) {
+  ItemC_VVIQgender_lm_40 <- brm(c ~ VVIQ_Scores + Dem_Sex + (1 | ID), data = OverallSDT_Subj_40, family = gaussian(), prior = c_gen_VVIQ_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(ItemC_VVIQgender_lm_40, file = "./ItemC_VVIQgender_lm_40.rda") 
+} else {
+  load("ItemC_VVIQgender_lm_40.rda")  
+}
+pp_check(ItemC_VVIQgender_lm_40, ndraws = 40) 
+summary(ItemC_VVIQgender_lm_40)
+mcse(ItemC_VVIQgender_lm_40)
+hdi(ItemC_VVIQgender_lm_40, ci = 0.89)
+pd(ItemC_VVIQgender_lm_40)
+
+## Item SDT ~ BA + gender ##
+
+# d score
+if (!file.exists("ItemD_BAgender_lm_40.rda")) {
+  ItemD_BAgender_lm_40 <- brm(d ~ BA_scores + Dem_Sex + (1 | ID), data = OverallSDT_Subj_40, family = gaussian(), prior = itemd_gen_BA_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(ItemD_BAgender_lm_40, file = "./ItemD_BAgender_lm_40.rda") 
+} else {
+  load("ItemD_BAgender_lm_40.rda")  
+}
+pp_check(ItemD_BAgender_lm_40, ndraws = 40) 
+summary(ItemD_BAgender_lm_40)
+mcse(ItemD_BAgender_lm_40)
+hdi(ItemD_BAgender_lm_40, ci = 0.89)
+pd(ItemD_BAgender_lm_40)
+
+# c score
+if (!file.exists("ItemC_BAgender_lm_40.rda")) {
+  ItemC_BAgender_lm_40 <- brm(c ~ BA_scores + Dem_Sex + (1 | ID), data = OverallSDT_Subj_40, family = gaussian(), prior = c_gen_BA_prior ,seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(ItemC_BAgender_lm_40, file = "./ItemC_BAgender_lm_40.rda") 
+} else {
+  load("ItemC_BAgender_lm_40.rda")  
+}
+pp_check(ItemC_BAgender_lm_40, ndraws = 40) 
+summary(ItemC_BAgender_lm_40)
+mcse(ItemC_BAgender_lm_40)
+hdi(ItemC_BAgender_lm_40, ci = 0.89)
+pd(ItemC_BAgender_lm_40)
+
+## Source SDT ~ VVIQ + gender ##
+
+# d score
+if (!file.exists("SrcD_VVIQgender_lm_40.rda")) {
+  SrcD_VVIQgender_lm_40 <- brm(d_Src ~ VVIQ_Scores + Dem_Sex + (1 | ID), data = OverallSDT_Subj_40, family = gaussian(), prior = sourced_gen_VVIQ_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(SrcD_VVIQgender_lm_40, file = "./SrcD_VVIQgender_lm_40.rda") 
+} else {
+  load("SrcD_VVIQgender_lm_40.rda")  
+}
+pp_check(SrcD_VVIQgender_lm_40, ndraws = 40) 
+summary(SrcD_VVIQgender_lm_40)
+mcse(SrcD_VVIQgender_lm_40)
+hdi(SrcD_VVIQgender_lm_40, ci = 0.89)
+pd(SrcD_VVIQgender_lm_40)
+
+# c score
+if (!file.exists("SrcC_VVIQgender_lm_40.rda")) {
+  SrcC_VVIQgender_lm_40 <- brm(c_Src ~ VVIQ_Scores + Dem_Sex + (1 | ID), data = OverallSDT_Subj_40, family = gaussian(), prior = c_gen_VVIQ_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(SrcC_VVIQgender_lm_40, file = "./SrcC_VVIQgender_lm_40.rda") 
+} else {
+  load("SrcC_VVIQgender_lm_40.rda")  
+}
+pp_check(SrcC_VVIQgender_lm_40, ndraws = 40) 
+summary(SrcC_VVIQgender_lm_40)
+mcse(SrcC_VVIQgender_lm_40)
+hdi(SrcC_VVIQgender_lm_40, ci = 0.89)
+pd(SrcC_VVIQgender_lm_40)
+
+## Associative Detail SDT ~ BA + gender ##
+
+# d score
+if (!file.exists("SrcD_BAgender_lm_40.rda")) {
+  SrcD_BAgender_lm_40 <- brm(d_Src ~ BA_scores + Dem_Sex + (1 | ID), data = OverallSDT_Subj_40, family = gaussian(), prior = sourced_gen_BA_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(SrcD_BAgender_lm_40, file = "./SrcD_BAgender_lm_40.rda") 
+} else {
+  load("SrcD_BAgender_lm_40.rda")  
+}
+pp_check(SrcD_BAgender_lm_40, ndraws = 40) 
+summary(SrcD_BAgender_lm_40)
+mcse(SrcD_BAgender_lm_40)
+hdi(SrcD_BAgender_lm_40, ci = 0.89)
+pd(SrcD_BAgender_lm_40)
+
+# c score
+if (!file.exists("SrcC_BAgender_lm_40.rda")) {
+  SrcC_BAgender_lm_40 <- brm(c_Src ~ BA_scores + Dem_Sex + (1 | ID), data = OverallSDT_Subj_40, family = gaussian(), prior = c_gen_BA_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(SrcC_BAgender_lm_40, file = "./SrcC_BAgender_lm_40.rda") 
+} else {
+  load("SrcC_BAgender_lm_40.rda")  
+}
+pp_check(SrcC_BAgender_lm_40, ndraws = 40) 
+summary(SrcC_BAgender_lm_40)
+mcse(SrcC_BAgender_lm_40)
+hdi(SrcC_BAgender_lm_40, ci = 0.89)
+pd(SrcC_BAgender_lm_40)
+
+
+## Item SDT ~ Valence + gender ##
+
+# Setting the priors
+#Priors for c: 
+c_val_gen_prior <-
+  prior(normal(0, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "ValenceNeutral") + 
+  prior(normal(0, .5), class = "b", coef = "Dem_SexFemale") 
+
+# Prior for Item d'
+itemd_val_gen_prior <-
+  prior(normal(1.5, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "ValenceNeutral") + 
+  prior(normal(0, .5), class = "b", coef = "Dem_SexFemale")
+
+# Prior for Associative Detail d’:
+sourced_val_gen_prior <-
+  prior(normal(1, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "ValenceNeutral") + 
+  prior(normal(0, .5), class = "b", coef = "Dem_SexFemale")
+
+# d score
+if (!file.exists("ItemD_Valgender_lm_40.rda")) {
+  ItemD_Valgender_lm_40 <- brm(d ~ Valence + Dem_Sex + (1 | ID), data = SDT_Val_Dems, family = gaussian(), prior = itemd_val_gen_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(ItemD_Valgender_lm_40, file = "./ItemD_Valgender_lm_40.rda") 
+} else {
+  load("ItemD_Valgender_lm_40.rda")  
+}
+pp_check(ItemD_Valgender_lm_40, ndraws = 40) 
+summary(ItemD_Valgender_lm_40)
+mcse(ItemD_Valgender_lm_40)
+hdi(ItemD_Valgender_lm_40, ci = 0.89)
+pd(ItemD_Valgender_lm_40)
+
+# c score
+if (!file.exists("ItemC_Valgender_lm_40.rda")) {
+  ItemC_Valgender_lm_40 <- brm(c ~ Valence + Dem_Sex + (1 | ID), data = SDT_Val_Dems, family = gaussian(), prior = c_val_gen_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(ItemC_Valgender_lm_40, file = "./ItemC_Valgender_lm_40.rda") 
+} else {
+  load("ItemC_Valgender_lm_40.rda")  
+}
+pp_check(ItemC_Valgender_lm_40, ndraws = 40) 
+summary(ItemC_Valgender_lm_40)
+mcse(ItemC_Valgender_lm_40)
+hdi(ItemC_Valgender_lm_40, ci = 0.89)
+pd(ItemC_Valgender_lm_40)
+
+
+## Associative Detail SDT ~ Valence + Gender ##
+
+# Associative Detail d ~ valence + gender
+if (!file.exists("SrcD_Valgender_lm_40.rda")) {
+  SrcD_Valgender_lm_40 <- brm(d ~ Valence + Dem_Sex + (1 | ID), data = Valence_SrcSDT_df, family = gaussian(), prior = sourced_val_gen_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(SrcD_Valgender_lm_40, file = "./SrcD_Valgender_lm_40.rda") 
+} else {
+  load("SrcD_Valgender_lm_40.rda")  
+}
+pp_check(SrcD_Valgender_lm_40, ndraws = 40) 
+summary(SrcD_Valgender_lm_40)
+mcse(SrcD_Valgender_lm_40)
+hdi(SrcD_Valgender_lm_40, ci = 0.89)
+pd(SrcD_Valgender_lm_40)
+
+# Associative Detail c ~ valence + gender
+if (!file.exists("SrcC_Valgender_lm_40.rda")) {
+  SrcC_Valgender_lm_40 <- brm(c ~ Valence + Dem_Sex + (1 | ID), data = Valence_SrcSDT_df, family = gaussian(), prior = c_val_gen_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(SrcC_Valgender_lm_40, file = "./SrcC_Valgender_lm_40.rda") 
+} else {
+  load("SrcC_Valgender_lm_40.rda")  
+}
+pp_check(SrcC_Valgender_lm_40, ndraws = 40) 
+summary(SrcC_Valgender_lm_40)
+mcse(SrcC_Valgender_lm_40)
+hdi(SrcC_Valgender_lm_40, ci = 0.89)
+pd(SrcC_Valgender_lm_40)
