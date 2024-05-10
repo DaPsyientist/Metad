@@ -583,7 +583,7 @@ Neg_Metad <- c(233)
 Src_40 <- c(119, 124, 129, 130, 131, 132, 139, 142, 143, 157, 167, 172, 186, 188, 192, 193, 195, 203, 204, 215, 219, 223, 224, 226, 232, 237, 238, 243, 244, 249, 250, 253, 260, 261, 264, 268, 271, 280, 281, 282)
 
 #Excluding participants according to predefined exclusion criteria
-Subj_60 <- E_Subj_69 %>% filter(!ID %in% c(Conf_exc, Item_exc, Source_exc, Img_exc, Neg_Metad))
+Subj_62 <- E_Subj_69 %>% filter(!ID %in% c(Conf_exc, Item_exc, Img_exc, Neg_Metad))
 Subj_40 <- E_Subj_69 %>% filter(!ID %in% c(Conf_exc, Item_exc, Source_exc, Img_exc, Neg_Metad)) %>% filter(ID %in% Src_40)
 
 
@@ -630,6 +630,8 @@ summary(Subj_40$VVIQ_Scores); sd(Subj_40$VVIQ_Scores)
 
 #### EDA - Item Recognition ####
 #Subsetting data for the acceptable participants (N=27)
+Item_Cleaned_Anal_62 <- Item_Cleaned_Anal_40 %>% filter(participant %in% Good_performers_enc) %>% filter(!participant %in% c(Conf_exc, Item_exc, Img_exc, Neg_Metad))
+
 Item_Cleaned_Anal_40 <- Item_Cleaned_Anal_40 %>% filter(participant %in% Good_performers_enc) %>% filter(!participant %in% c(Conf_exc, Item_exc, Source_exc, Img_exc, Neg_Metad)) %>% filter(participant %in% Src_40)
 
 #Sanity Check - Number of Responses x Participant
@@ -1843,11 +1845,11 @@ Item_BA_c_prior <-
   prior(normal(0, .5), class = "b", coef = "BA_scores")
 Item_OverallSDT_Subj %>% ggplot(aes(x=BA_scores, y= c)) + xlab("Body Awareness Scores") + ylab("c") + geom_point() + theme_classic() + geom_smooth(method = "lm", color="red", linetype = "dashed", se = TRUE)
 cor(OverallSDT_Subj$BA_scores, OverallSDT_Subj$c) #0.0072 correlation
-if (!file.exists("SciRep40_BA_Item.rda")) {
+if (!file.exists("SciRep40_BA_c_Item.rda")) {
   BA_Item_c <- brm(c ~ BA_scores, data = Item_OverallSDT_Subj, family = gaussian(), iter = 10000, prior= Item_BA_c_prior, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
-  save(BA_Item_c, file = "./SciRep40_BA_Item.rda") 
+  save(BA_Item_c, file = "./SciRep40_BA_c_Item.rda") 
 } else {
-  load("SciRep40_BA_Item.rda")  
+  load("SciRep40_BA_c_Item.rda")  
 }
 pp_check(BA_Item_c, ndraws = 40) #Great fit
 print(summary(BA_Item_c),digits=4)
@@ -2046,3 +2048,216 @@ cscore_SubD_Valint <- brm(c_scores ~ Valence*SubD_Scores, data = ValSDT_SubjAll,
 #   (VVIQ, BPQ) for d', but there is moderate evidence for an effect of VVIQ in addition to Valence for c'
 
 
+#### N = 62 Analyses ####
+ID_40 <- as.numeric(levels(Subj_40$ID)[Subj_40$ID])
+ID_22 <- c(120, 134, 140, 141, 147, 152, 162, 165, 182, 197, 209, 218, 220, 228, 252, 255, 259, 262, 263, 274, 283, 284)
+ID_62 <- c(ID_40, ID_22)
+
+### ITEM: SDT x Valence ###
+## d ##
+Neg_d_62 <- c(1.3003, 2.3608, 1.2060, 2.6471, 3.1986, 2.1365, 3.8019, 2.2083, 
+              3.0664, 2.8719, 2.7181, 2.1008, 1.9067, 2.7181, 1.9900, 3.5419, 
+              2.5859, 1.8650, 1.9067, 2.4582, 2.1365, 2.4582, 2.0188, 2.0188, 
+              1.3135, 2.4225, 1.6151, 2.8719, 1.8650, 1.6576, 1.7172, 2.9487, 
+              2.7181, 2.8015, 3.0664, 2.5859, 2.1148, 2.6471, 2.8015, 2.1666, 
+              2.2257, 1.1174, 2.8110, 0.8907, 3.5242, 4.1950, 4.1603, 4.2111, 
+              2.3161, 1.8373, 2.6306, 3.1948, 2.6281, 1.0730, 1.4286, 2.4152, 
+              2.6522, 2.0938, 4.1416, 1.0430, 3.8019, 1.9377)
+mean(Neg_d_62); sd(Neg_d_62) #2.43 (0.81)
+
+Neut_d_62 <- c(0.7509, 2.1008, 1.4817, 1.8650, 2.6471, 2.0009, 2.1365, 1.8167, 
+               1.4562, 2.2083, 2.1666, 1.9827, 1.7416, 2.5572, 1.9057, 2.7181, 
+               1.6272, 1.3024, 2.0767, 2.3608, 2.1666, 1.9067, 1.7172, 1.9113, 
+               1.9057, 2.2686, 2.0009, 2.3608, 2.1148, 1.7300, 1.8231, 2.3260, 
+               3.3524, 2.1365, 1.8167, 2.4225, 1.1161, 1.9057, 2.1666, 2.2222, 
+               1.7416, 1.3024, 2.2083, 1.5254, 1.9067, 2.8413, 2.5572, 2.8413, 
+               2.3862, 1.9827, 2.2609, 2.6471, 2.4582, 1.4008, 1.1061, 1.5632, 
+               2.0188, 2.5572, 2.3862, 2.1148, 2.2609, 2.3608)
+mean(Neut_d_62); sd(Neut_d_62) #2.04 (0.46)
+
+neg_d_62 <- data.frame(cbind(ID_62, Neg_d_62))
+colnames(neg_d_62) <- c("ID", "Neg")
+neut_d_62 <- data.frame(cbind(ID_62, Neut_d_62))
+colnames(neut_d_62) <- c("ID", "Neut")
+
+full_d_62 <- neg_d_62 %>% right_join(neut_d_62)
+full_d_62 <- full_d_62 %>% pivot_longer(c("Neg", "Neut"), names_to = "Valence", values_to = "d")
+
+#Specify Prior
+d_prior <-
+  prior(normal(1.5, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "ValenceNeut")
+
+#Analyze results
+if (!file.exists("SciRep62_item_val_d_lm.rda")) {
+  val_d_lm_62 <- brm(d ~  Valence + (1 | ID), data = full_d_62, family = gaussian(), prior = d_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(val_d_lm_62, file = "./SciRep62_item_val_d_lm.rda") 
+} else {
+  load("SciRep62_item_val_d_lm.rda")  
+}
+pp_check(val_d_lm_62, ndraws = 40) #Looks like a great fit
+summary(val_d_lm_62)
+mcse(val_d_lm_62)
+hdi(val_d_lm_62, ci = 0.89)
+pd(val_d_lm_62)
+plot_model(val_d_lm_62, type="pred")
+(mean(neg_d$Neg)/mean(neut_d$Neut)) 
+#0.38 [0.22, 0.54]  more sensitive for neg valence; 1.19x more sensitive than neut memory
+# 100% pd
+
+
+## c ##
+neg_c_62 <- c(-0.0500, -0.4803, -0.0971, -0.8176, -0.5419, -0.1430, -0.2403, 
+              -0.2966, -0.6080, -0.2247, -0.3016, -0.3503, -0.4474, -0.3016, 
+              -0.6657, -0.3702, 0.3677, 0.1249, -0.4474, -0.1717, -0.1430, 
+              -0.1717, -0.2018, -0.2018, 0.1508, 0, 0.0000, -0.2247, -0.1249, 
+              -0.2286, -0.3526, -0.6668, -0.3016, 0.0000, -0.6080, -0.3677, 0, 
+              -0.8176, 0.0000, -0.5774, -0.0984, -0.1414, -0.2552, -0.1548, 
+              -0.3791, -0.0437, -0.0611, -0.0356, -0.0532, -0.2926, -0.0854, 
+              -0.0633, -0.3466, -0.0637, -0.3431, -0.1931, -0.3346, -0.0105, 
+              -0.0704, -0.0787, 0.2403, 1.1313)
+mean(neg_c_62); sd(neg_c_62) #-0.20 (0.29)
+
+neut_c_62 <- c(-0.1305, -0.3503, -0.6599, -0.1249, -0.8176, -0.4003, -0.1430, 
+               -0.4924, -0.4831, -0.2966, -0.5774, -0.0661, -0.7899, -0.8626, 
+               -0.7078, -0.3016, -0.3976, -0.4062, -0.6224, -0.4803, -0.5774, 
+               -0.4474, -0.3526, -0.2556, -0.7078, -0.0769, -0.4003, -0.4803, 
+               0, -0.5357, -0.7491, -0.2378, -0.4650, -0.1430, -0.4924, 0.0000, 
+               -0.1421, -0.7078, -0.5774, -1.0301, -0.7899, -0.4062, -0.2966, 
+               -0.1625, -0.4474, -0.7206, -0.8626, -0.7206, -0.9481, 0.0661, 
+               -0.5303, -0.8176, 0.1717, -0.7004, 0.0471, -0.6192, -0.2018, 
+               -0.8626, -0.9481, 0, -0.5303, 0.4803)
+mean(neut_c_62); sd(neut_c_62) #-0.44 (0.31)
+
+neg_c_62 <- data.frame(cbind(ID_62, neg_c_62))
+colnames(neg_c_62) <- c("ID", "Neg")
+neut_c_62 <- data.frame(cbind(ID_62, neut_c_62))
+colnames(neut_c_62) <- c("ID", "Neut")
+
+full_c_62 <- neg_c_62 %>% right_join(neut_c_62)
+full_c_62 <- full_c_62 %>% pivot_longer(c("Neg", "Neut"), names_to = "Valence", values_to = "c")
+
+#Specify Prior
+c_prior <-
+  prior(normal(0, .5), class = "b", coef = "") +
+  prior(normal(0, .5), class = "b", coef = "ValenceNeut")
+
+#Analyze results
+if (!file.exists("SciRep62_item_val_c_lm.rda")) {
+  val_c_lm_62 <- brm(c ~  Valence + (1 | ID), data = full_c_62, family = gaussian(), prior = c_prior, seed = 123, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(val_c_lm_62, file = "./SciRep62_item_val_c_lm.rda") 
+} else {
+  load("SciRep62_item_val_c_lm.rda")  
+}
+pp_check(val_c_lm_62, ndraws = 40) #Looks like a great fit
+summary(val_c_lm_62)
+mcse(val_c_lm_62)
+hdi(val_c_lm_62, ci = 0.89)
+pd(val_c_lm_62)
+plot_model(val_c_lm_62, type="pred")
+# -0.23 [-0.31, -0.15]  more liberal for neutral judgments
+# 100% pd
+
+### Type 1 (d'/c) Subjectives ###
+Item_d_62 <- c(1.4028, 2.3898, 1.5846, 2.2102, 2.6289, 2.1033, 2.7996, 2.2107, 2.2593, 
+          2.4259, 2.4296, 2.3330, 1.8317, 2.4427, 2.0162, 2.8134, 2.1202, 1.7974, 
+          2.1830, 2.3367, 2.3611, 2.2856, 2.1512, 2.1584, 1.6105, 2.4122, 1.8789, 
+          2.4601, 2.2024, 1.8255, 1.9666, 2.3254, 2.7555, 2.5291, 2.2433, 2.4057, 
+          1.8532, 2.3200, 2.3803, 2.0986, 1.9335, 1.6440, 2.4381, 1.5305, 2.4118, 
+          2.5739, 2.3410, 2.6418, 2.0621, 2.0689, 2.5388, 2.3032, 2.5397, 1.5479, 
+          1.7124, 1.9508, 2.1325, 2.2537, 2.4201, 2.0511, 2.6184, 1.7370)
+mean(Item_d_62); sd(Item_d_62) #2.19 (0.33)
+Item_c_62 <- c(-0.1494, -0.4376, -0.3695, -0.3711, -0.5428, -0.2700, -0.2213, -0.3995, 
+          -0.4635, -0.2697, -0.4265, -0.2648, -0.5387, -0.4952, -0.6079, -0.2919, 
+          -0.1291, -0.2075, -0.5114, -0.3053, -0.3921, -0.3129, -0.3165, -0.2685, 
+          -0.2036, -0.0938, -0.2054, -0.3293, -0.1426, -0.3845, -0.5154, -0.3300, 
+          -0.3133, -0.1480, -0.4373, -0.2379, -0.1372, -0.6767, -0.3246, -0.6570, 
+          -0.4633, -0.2859, -0.3616, -0.1406, -0.3925, -0.5143, -0.6175, -0.5209, 
+          -0.5178, -0.1288, -0.3513, -0.5493, -0.0375, -0.3291, -0.0946, -0.4497, 
+          -0.3018, -0.3971, -0.7392, 0.0184, -0.2950, 0.3787)
+mean(Item_c_62); sd(Item_c_62) #-0.34 (0.19)
+
+Subj_22 <- E_Subj_69 %>% anti_join(Item40)
+MLE_2SDT_Item_62 <- data.frame(ID_62, Item_d_62, Item_c_62)
+colnames(MLE_2SDT_Item_62) <- c("ID", "d_Item", "c_Item")
+
+##Subsetting for usable Source memory participants
+OverallSDT_Subj_62 <- cbind(rbind(Subj_22, Subj_40), MLE_2SDT_Item_62[2:3])
+
+## d' ##
+#Vividness of Visual Imagery Questionnaire (VVIQ)
+OverallSDT_Subj_62 %>% ggplot(aes(x=VVIQ_Scores, y=d_Item)) + xlab("VVIQ Scores") + ylab("d'") + geom_point() + theme_classic() + geom_smooth(method = "lm", color="red", linetype = "dashed", se = TRUE)
+cor(OverallSDT_Subj_62$VVIQ_Scores, OverallSDT_Subj_62$d) #0.16 correlation
+if (!file.exists("SciRep62_VVIQ_d_Item.rda")) {
+  Item_VVIQ_d_Item_62 <- brm(d_Item ~ VVIQ_Scores, data = OverallSDT_Subj_62, family = gaussian(), prior = Item_VVIQ_d_prior, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(Item_VVIQ_d_Item_62, file = "./SciRep62_VVIQ_d_Item.rda") 
+} else {
+  load("SciRep62_VVIQ_d_Item.rda")  
+}
+pp_check(Item_VVIQ_d_Item_62, ndraws = 40) #Looks like a great fit
+summary(Item_VVIQ_d_Item_62)
+mcse(Item_VVIQ_d_Item_62)
+hdi(Item_VVIQ_d_Item_62, 0.89); ci(Item_VVIQ_d_Item_62, method = "HDI", ci = 0.89)[2,3];ci(Item_VVIQ_d_Item_62, method = "HDI", ci = 0.85)[2,4]
+pd(Item_VVIQ_d_Item_62)
+plot_model(Item_VVIQ_d_Item_62, type="pred")
+#No apparent association in scatterplot, and no meaningful association in linear model
+# 0.01 [-0.0016, 0.012]  
+# 89.39% pd
+
+# Body Perception Questionnaire - Body Awareness
+OverallSDT_Subj_62 %>% ggplot(aes(x=BA_scores, y= d_Item)) + xlab("Body Awareness Scores") + ylab("d'") + geom_point() + theme_classic() + geom_smooth(method = "lm", color="red", linetype = "dashed", se = TRUE)
+cor(OverallSDT_Subj_62$BA_scores, OverallSDT_Subj_62$d) #-0.5 correlation
+if (!file.exists("SciRep62_BA_d_Item.rda")) {
+  BA_Item_d_62 <- brm(d_Item ~ BA_scores, data = OverallSDT_Subj_62, family = gaussian(), prior = Item_BA_d_prior, iter = 10000, save_pars = save_pars(all = TRUE))
+  save(BA_Item_d_62, file = "./SciRep62_BA_d_Item.rda") 
+} else {
+  load("SciRep62_BA_d_Item.rda")  
+}
+pp_check(BA_Item_d_62, ndraws = 40) #Great fit
+print(summary(BA_Item_d_62),digits=4)
+mcse(BA_Item_d_62)
+hdi(BA_Item_d_62, ci = 0.89); ci(BA_Item_d_62, method = "HDI", ci = 0.89)[2,3];ci(BA_Item_d_62, method = "HDI", ci = 0.89)[2,4]
+pd(BA_Item_d_62)
+plot_model(BA_Item_d_62, type="pred")
+#No apparent association in scatterplot, and no meaningful association in linear model
+# -0.0007 [-0.00039, 0.0025]  
+# 64.45% pd
+
+## c ##
+#Vividness of Visual Imagery Questionnaire (VVIQ)
+OverallSDT_Subj_62 %>% ggplot(aes(x=VVIQ_Scores, y= c_Item)) + xlab("VVIQ Scores") + ylab("c") + geom_point() + theme_classic() + geom_smooth(method = "lm", color="red", linetype = "dashed", se = TRUE)
+cor(OverallSDT_Subj_62$VVIQ_Scores, OverallSDT_Subj_62$c_Item) #-0.0067 correlation
+if (!file.exists("SciRep62_VVIQ_c_Item.rda")) {
+  VVIQ_c_Item_62 <- brm(c_Item ~ VVIQ_Scores, data = OverallSDT_Subj_62, family = gaussian(), prior = Item_VVIQ_c_prior, iter = 10000, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(VVIQ_c_Item_62, file = "./SciRep62_VVIQ_c_Item.rda") 
+} else {
+  load("SciRep62_VVIQ_c_Item.rda")  
+}
+pp_check(VVIQ_c_Item_62, ndraws = 40) #Great fit
+summary(VVIQ_c_Item_62);summary(VVIQ_c_Item_62)[14]
+mcse(VVIQ_c_Item_62)
+hdi(VVIQ_c_Item_62, ci = 0.89); round(ci(VVIQ_c_Item_62, method = "HDI", ci = 0.89)[2,3], 4);round(ci(VVIQ_c_Item_62, method = "HDI", ci = 0.89)[2,4],4)
+pd(VVIQ_c_Item_62)
+plot_model(VVIQ_c_Item_62, type="pred")
+#No apparent association in scatterplot, and no meaningful association in linear model
+# -0.0001 [-0.0041, 0.004]  
+# 51.31% pd
+
+# Body Perception Questionnaire - Body Awareness
+OverallSDT_Subj_62 %>% ggplot(aes(x=BA_scores, y= c_Item)) + xlab("Body Awareness Scores") + ylab("c") + geom_point() + theme_classic() + geom_smooth(method = "lm", color="red", linetype = "dashed", se = TRUE)
+cor(OverallSDT_Subj_62$BA_scores, OverallSDT_Subj_62$c_Item) #0.062 correlation
+if (!file.exists("SciRep62_BA_c_Item.rda")) {
+  BA_Item_c_62 <- brm(c_Item ~ BA_scores, data = OverallSDT_Subj_62, family = gaussian(), iter = 10000, prior= Item_BA_c_prior, save_pars = save_pars(all = TRUE), control = list(adapt_delta = 0.99))
+  save(BA_Item_c_62, file = "./SciRep62_BA_c_Item.rda") 
+} else {
+  load("SciRep62_BA_c_Item.rda")  
+}
+pp_check(BA_Item_c_62, ndraws = 40) #Great fit
+print(summary(BA_Item_c_62),digits=4)
+mcse(BA_Item_c_62)
+hdi(BA_Item_c_62, ci = 0.89); ci(BA_Item_c_62, method = "HDI", ci = 0.89)[2,3];ci(BA_Item_c_62, method = "HDI", ci = 0.89)[2,4]
+pd(BA_Item_c_62)
+plot_model(BA_Item_c_62, type="pred")
+#No apparent association in scatterplot, and no meaningful association in linear model
+# 0.0005 [-0.0013, 0.0023]  
+# 68.41% pd
